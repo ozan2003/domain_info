@@ -1,6 +1,12 @@
 import { promises as dns } from "node:dns";
 import type { LookupResponse, MXRecord } from "../schemas/lookup.schema.js";
 
+/**
+ * Helper function for resolving individual DNS records.
+ *
+ * @param resolver A function returns a promise that resolves to said DNS record.
+ * @returns A promise resolves to the DNS record if it exists, or null if it doesn't.
+ */
 async function resolveOptional<T>(
     resolver: () => Promise<T>,
 ): Promise<T | null> {
@@ -13,10 +19,12 @@ async function resolveOptional<T>(
                 : undefined;
         switch (code) {
             case "ENODATA":
-            case "ENOTFOUND":
+            case "ENOTFOUND": {
                 return null;
-            default:
+            }
+            default: {
                 break;
+            }
         }
 
         throw error;
