@@ -14,7 +14,6 @@ async function resolveOptional<T>(
         switch (code) {
             case "ENODATA":
             case "ENOTFOUND":
-            case "ENODOMAIN":
                 return null;
             default:
                 break;
@@ -51,7 +50,7 @@ export async function lookupDomain(domain: string): Promise<LookupResponse> {
     return {
         domain,
         a: aRecords ?? [],
-        mx: ((mxRecords ?? []) as { exchange: string; priority: number }[]).map(
+        mx: (mxRecords ?? []).map(
             (record) =>
                 ({
                     exchange: record.exchange,
