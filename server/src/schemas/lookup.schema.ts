@@ -2,16 +2,12 @@ import * as z from "zod";
 
 export const lookupQuerySchema = z.object({
     domain: z
-        .string()
+        .hostname()
         .trim()
         .min(1, "domain is required")
         // 253 is the max length of a DNS name.
         // https://web.archive.org/web/20190518124533/https://devblogs.microsoft.com/oldnewthing/?p=7873
-        .max(253, "domain is too long")
-        .regex(
-            /^(?!-)[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/,
-            "invalid domain format",
-        ),
+        .max(253, "domain is too long"),
 });
 
 export const mxRecordSchema = z.object({
