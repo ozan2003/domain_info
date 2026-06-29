@@ -6,7 +6,13 @@ import {
 } from "../schemas/lookup.schema.js";
 import { lookupDomain } from "../services/dnsService.js";
 
-export async function lookupHandler(ctx: Context) {
+/**
+ * Handles GET /api/lookup requests by validating the query and resolving DNS records.
+ *
+ * @param ctx The Hono context.
+ * @returns A JSON response containing the DNS records.
+ */
+export async function lookupHandler(ctx: Context): Promise<Response> {
     const parsedQuery = lookupQuerySchema.safeParse(ctx.req.query());
 
     if (!parsedQuery.success) {
