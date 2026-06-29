@@ -5,8 +5,13 @@ export const lookupQuerySchema = z.object({
         .string()
         .trim()
         .min(1, "domain is required")
-        // Most search engines can't cope with domains longer than 2048 characters.
-        .max(2048, "domain is too long"),
+        // 253 is the max length of a DNS name.
+        // https://web.archive.org/web/20190518124533/https://devblogs.microsoft.com/oldnewthing/?p=7873
+        .max(253, "domain is too long")
+        .regex(
+            /^(?!-)[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/,
+            "invalid domain format",
+        ),
 });
 
 export const mxRecordSchema = z.object({
