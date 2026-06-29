@@ -28,3 +28,5 @@ serve({
     fetch: app.fetch,
     port: PORT,
 });
+
+console.log(`Server listening on http://localhost:${PORT}`);
