@@ -1,6 +1,7 @@
 import js from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
+import jsdoc from 'eslint-plugin-jsdoc'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
@@ -13,6 +14,9 @@ export default defineConfig([
             ...tseslint.configs.strictTypeChecked,
             ...tseslint.configs.stylisticTypeChecked,
         ],
+        plugins: {
+            jsdoc,
+        },
         languageOptions: {
             globals: globals.node,
             parserOptions: {
@@ -27,6 +31,17 @@ export default defineConfig([
             ],
             'no-console': ['error', { allow: ['warn', 'error'] }],
             'prefer-template': 'error',
+            'jsdoc/require-jsdoc': [
+                'error',
+                {
+                    publicOnly: true,
+                    require: {
+                        FunctionDeclaration: true,
+                        ClassDeclaration: true,
+                        MethodDefinition: true,
+                    },
+                },
+            ],
         },
     },
 ])

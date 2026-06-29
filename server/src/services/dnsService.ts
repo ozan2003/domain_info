@@ -1,0 +1,65 @@
+import { promises as dns } from "node:dns";
+import type { LookupResponse, MXRecord } from "../schemas/lookup.schema.js";
+
+async function resolveOptional<T>(
+    resolver: () => Promise<T>,
+): Promise<T | null> {
+    try {
+        return await resolver();
+    } catch (error) {
+        const code =
+            error instanceof Error
+                ? (error as { code?: string }).code
+                : undefined;
+        switch (code) {
+            case "ENODATA":
+            case "ENOTFOUND":
+            case "ENODOMAIN":
+                return null;
+            default:
+                break;
+        }
+
+        throw error;
+    }
+}
+
+/**
+ * Looks up various DNS records for a given domain.
+ *
+ * Records included are:
+ *
+ * - A (IPv4 addresses)
+ * - MX (Mail Exchange records)
+ * - NS (Name Server records)
+ * - TXT (Text records)
+ * - CNAME (Canonical Name records)
+ *
+ * @param domain The domain name to look up.
+ * @returns A promise that resolves to a `LookupResponse` object containing the DNS records.
+ */
+export async function lookupDomain(domain: string): Promise<LookupResponse> {
+    const [aRecords, mxRecords, nsRecords, txtRecords, cnameRecords] =
+        await Promise.all([
+            resolveOptional(() => dns.resolve4(domain)),
+            resolveOptional(() => dns.resolveMx(domain)),
+            resolveOptional(() => dns.resolveNs(domain)),
+            resolveOptional(() => dns.resolveTxt(domain)),
+            resolveOptional(() => dns.resolveCname(domain)),
+        ]);
+
+    return {
+        domain,
+        a: aRecords ?? [],
+        mx: ((mxRecords ?? []) as { exchange: string; priority: number }[]).map(
+            (record) =>
+                ({
+                    exchange: record.exchange,
+                    priority: record.priority,
+                }) satisfies MXRecord,
+        ),
+        ns: nsRecords ?? [],
+        txt: txtRecords ?? [],
+        cname: cnameRecords ?? [],
+    };
+}
