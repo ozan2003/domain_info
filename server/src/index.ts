@@ -1,10 +1,13 @@
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
+import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { lookupHandler } from "./routes/lookup.js";
 
 const app = new Hono();
 const PORT = Number(process.env.PORT) || 6633;
+
+app.use("*", cors());
 
 // Sanity check.
 app.get("/health", (ctx) => ctx.json({ isOk: true }));
