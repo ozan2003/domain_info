@@ -4,6 +4,7 @@
  *
  * @author Ozan Malcı
  */
+import "dotenv/config";
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
@@ -38,9 +39,12 @@ app.onError((error, ctx) => {
     return ctx.json({ error: "Internal Server Error" }, 500);
 });
 
-serve({
-    fetch: app.fetch,
-    port: PORT,
-});
-
-console.log(`Server listening on http://localhost:${PORT}`);
+serve(
+    {
+        fetch: app.fetch,
+        port: PORT,
+    },
+    (info) => {
+        console.log(`Server listening on http://localhost:${info.port}`);
+    },
+);

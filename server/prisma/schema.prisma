@@ -10,3 +10,52 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Lookup {
+  id        Int      @id @default(autoincrement())
+  domain    String
+  isCached    Boolean  @default(false) @map("cached")
+  createdAt DateTime @default(now())
+
+  aRecords   ARecord[]
+  mxRecords  MXRecord[]
+  nsRecords  NSRecord[]
+  txtRecords TXTRecord[]
+  cnameRecords CNAMERecord[]
+}
+
+model ARecord {
+  id       Int    @id @default(autoincrement())
+  address  String
+  lookupId Int
+  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+}
+
+model MXRecord {
+  id       Int    @id @default(autoincrement())
+  exchange String
+  priority Int
+  lookupId Int
+  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+}
+
+model NSRecord {
+  id         Int    @id @default(autoincrement())
+  nameserver String
+  lookupId   Int
+  lookup     Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+}
+
+model TXTRecord {
+  id       Int    @id @default(autoincrement())
+  value    String
+  lookupId Int
+  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+}
+
+model CNAMERecord {
+  id       Int    @id @default(autoincrement())
+  value    String
+  lookupId Int
+  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+}

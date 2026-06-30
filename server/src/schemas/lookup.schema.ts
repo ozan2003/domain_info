@@ -24,6 +24,8 @@ export const mxRecordSchema = z.object({
 
 export const lookupResponseSchema = z.object({
     domain: z.string(),
+    isCached: z.boolean(),
+    createdAt: z.string(),
     a: z.array(z.string()),
     mx: z.array(mxRecordSchema),
     ns: z.array(z.string()),
@@ -34,3 +36,11 @@ export const lookupResponseSchema = z.object({
 export type LookupQuery = z.infer<typeof lookupQuerySchema>;
 export type LookupResponse = z.infer<typeof lookupResponseSchema>;
 export type MXRecord = z.infer<typeof mxRecordSchema>;
+export type DnsLookupResult = {
+    domain: string;
+    a: string[];
+    mx: MXRecord[];
+    ns: string[];
+    txt: string[][];
+    cname: string[];
+};

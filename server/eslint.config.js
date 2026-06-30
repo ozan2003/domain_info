@@ -5,7 +5,7 @@ import jsdoc from "eslint-plugin-jsdoc";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-    globalIgnores(["dist"]),
+    globalIgnores(["dist", "src/generated"]),
     js.configs.recommended,
     {
         files: ["src/**/*.ts"],
@@ -25,6 +25,7 @@ export default defineConfig([
         },
         rules: {
             "@typescript-eslint/restrict-template-expressions": "off",
+            "@typescript-eslint/consistent-type-definitions": "off",
             "@typescript-eslint/no-explicit-any": "error",
             "@typescript-eslint/consistent-type-imports": [
                 "error",

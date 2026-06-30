@@ -1,0 +1,48 @@
+-- CreateTable
+CREATE TABLE "Lookup" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "domain" TEXT NOT NULL,
+    "cached" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "ARecord" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "address" TEXT NOT NULL,
+    "lookupId" INTEGER NOT NULL,
+    CONSTRAINT "ARecord_lookupId_fkey" FOREIGN KEY ("lookupId") REFERENCES "Lookup" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "MXRecord" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "exchange" TEXT NOT NULL,
+    "priority" INTEGER NOT NULL,
+    "lookupId" INTEGER NOT NULL,
+    CONSTRAINT "MXRecord_lookupId_fkey" FOREIGN KEY ("lookupId") REFERENCES "Lookup" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "NSRecord" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "nameserver" TEXT NOT NULL,
+    "lookupId" INTEGER NOT NULL,
+    CONSTRAINT "NSRecord_lookupId_fkey" FOREIGN KEY ("lookupId") REFERENCES "Lookup" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "TXTRecord" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "value" TEXT NOT NULL,
+    "lookupId" INTEGER NOT NULL,
+    CONSTRAINT "TXTRecord_lookupId_fkey" FOREIGN KEY ("lookupId") REFERENCES "Lookup" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "CNAMERecord" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "value" TEXT NOT NULL,
+    "lookupId" INTEGER NOT NULL,
+    CONSTRAINT "CNAMERecord_lookupId_fkey" FOREIGN KEY ("lookupId") REFERENCES "Lookup" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);

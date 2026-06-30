@@ -1,6 +1,6 @@
 /**
  * @file lookup.ts
- * @fileoverview Route handler for DNS lookup requests. Validates query parameters and invokes the DNS service.
+ * @fileoverview Route handler for DNS lookup requests. Validates query parameters and invokes the lookup service.
  *
  * @author Ozan Malcı
  */
@@ -10,7 +10,7 @@ import {
     lookupQuerySchema,
     type LookupResponse,
 } from "../schemas/lookup.schema.js";
-import { lookupDomain } from "../services/dnsService.js";
+import { performLookup } from "../services/lookupService.js";
 
 /**
  * Handles GET /api/lookup requests by validating the query and resolving DNS records.
@@ -28,7 +28,7 @@ export async function lookupHandler(ctx: Context): Promise<Response> {
         });
     }
 
-    const result = (await lookupDomain(
+    const result = (await performLookup(
         parsedQuery.data.domain,
     )) satisfies LookupResponse;
     return ctx.json(result);
