@@ -5,7 +5,7 @@
  * @author Ozan Malcı
  */
 import { promises as dns } from "node:dns";
-import type { LookupResponse, MXRecord } from "../schemas/lookup.schema.js";
+import type { DnsLookupResult, MXRecord } from "../schemas/lookup.schema.js";
 
 /**
  * Helper function for resolving individual DNS records.
@@ -49,9 +49,9 @@ async function resolveOptional<T>(
  * - CNAME (Canonical Name records)
  *
  * @param domain The domain name to look up.
- * @returns A promise that resolves to a `LookupResponse` object containing the DNS records.
+ * @returns A promise that resolves to the raw DNS record payload.
  */
-export async function lookupDomain(domain: string): Promise<LookupResponse> {
+export async function lookupDomain(domain: string): Promise<DnsLookupResult> {
     const [aRecords, mxRecords, nsRecords, txtRecords, cnameRecords] =
         await Promise.all([
             resolveOptional(() => dns.resolve4(domain)),

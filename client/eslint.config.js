@@ -7,16 +7,28 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['dist']),
+  js.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
+      ...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.stylisticTypeChecked,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
     languageOptions: {
       globals: globals.browser,
+      parserOptions: {
+        projectService: true,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports' },
+      ],
+      'no-console': 'error',
     },
   },
 ])
