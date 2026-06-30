@@ -1,6 +1,6 @@
 /**
  * @file dnsService.ts
- * @fileoverview DNS lookup services. Provides functions to resolve various DNS records for a given domain.
+ * @fileoverview Raw DNS resolution services. Provides functions to resolve various DNS records for a given domain.
  *
  * @author Ozan Malcı
  */

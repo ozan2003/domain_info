@@ -20,6 +20,14 @@ app.get("/health", (ctx) => ctx.json({ isOk: true }));
 // Domain lookup happens here.
 // Example: GET /api/lookup?domain=example.com
 app.get("/api/lookup", lookupHandler);
+// History.
+app.get("/api/history", () => {
+    throw new Error("TODO");
+});
+// Statistics
+app.get("/api/stats", () => {
+    throw new Error("TODO");
+});
 
 app.onError((error, ctx) => {
     if (error instanceof HTTPException) {
