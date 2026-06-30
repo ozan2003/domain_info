@@ -153,3 +153,6 @@ dist-ssr
 *.suo
 *.ntvs*
 *.sw?
+
+# Prisma
+server/src/generated/prisma
