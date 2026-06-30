@@ -1,3 +1,9 @@
+/**
+ * @file lookup.ts
+ * @fileoverview Route handler for DNS lookup requests. Validates query parameters and invokes the DNS service.
+ *
+ * @author Ozan Malcı
+ */
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import {

@@ -1,3 +1,9 @@
+/**
+ * @file dnsService.ts
+ * @fileoverview DNS lookup services. Provides functions to resolve various DNS records for a given domain.
+ *
+ * @author Ozan Malcı
+ */
 import { promises as dns } from "node:dns";
 import type { LookupResponse, MXRecord } from "../schemas/lookup.schema.js";
 

@@ -1,3 +1,9 @@
+/**
+ * @file lookup.schema.ts
+ * @fileoverview Zod schemas for validating DNS lookup queries and responses in runtime.
+ *
+ * @author Ozan Malcı
+ */
 import * as z from "zod";
 
 export const lookupQuerySchema = z.object({
@@ -10,9 +16,10 @@ export const lookupQuerySchema = z.object({
         .max(253, "domain is too long"),
 });
 
+// Zod schema used for runtime validation. So we can't use `MxRecord` from `node:dns`.
 export const mxRecordSchema = z.object({
     exchange: z.string(),
-    priority: z.number().int(),
+    priority: z.int().nonnegative(), // The preference number is an u16 (RFC 1035).
 });
 
 export const lookupResponseSchema = z.object({
