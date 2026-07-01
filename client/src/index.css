@@ -1,0 +1,66 @@
+/**
+ * @file index.css
+ * @fileoverview Global styles, CSS reset, and design tokens for the theme.
+ */
+
+/* Design Tokens */
+:root {
+    --color-bg: hsl(220, 15%, 8%);
+    --color-surface: hsl(220, 15%, 12%);
+    --color-surface-hover: hsl(220, 15%, 15%);
+    --color-border: hsl(220, 10%, 20%);
+    --color-border-subtle: hsl(220, 10%, 16%);
+
+    --color-text: hsl(0, 0%, 90%);
+    --color-text-secondary: hsl(0, 0%, 65%);
+    --color-text-muted: hsl(0, 0%, 45%);
+
+    --color-accent: hsl(215, 70%, 55%);
+    --color-accent-hover: hsl(215, 70%, 48%);
+    --color-accent-subtle: hsl(215, 70%, 55%, 0.12);
+
+    --color-error: hsl(0, 65%, 55%);
+    --color-error-bg: hsl(0, 65%, 55%, 0.1);
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+
+    --font-sans: sans-serif;
+    --font-mono: monospace;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Base */
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* Utility */
+button {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+input {
+    font-family: inherit;
+}
