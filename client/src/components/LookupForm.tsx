@@ -42,7 +42,9 @@ export function LookupForm({ onSubmit, isLoading }: LookupFormProps) {
                     className="lookup-form__input"
                     type="text"
                     value={domain}
-                    onChange={(evt) => { setDomain(evt.target.value); }}
+                    onChange={(evt) => {
+                        setDomain(evt.target.value);
+                    }}
                     placeholder={DEFAULT_PLACEHOLDER_URL}
                     disabled={isLoading}
                     autoComplete="off"

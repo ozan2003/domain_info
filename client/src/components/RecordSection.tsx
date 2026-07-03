@@ -96,7 +96,9 @@ export function RecordSection({
         } catch {
             setCopyButton("error");
         }
-        window.setTimeout(() => { setCopyButton("idle"); }, COPY_BUTTON_TIMEOUT_MS);
+        window.setTimeout(() => {
+            setCopyButton("idle");
+        }, COPY_BUTTON_TIMEOUT_MS);
     }
 
     return (
@@ -113,7 +115,9 @@ export function RecordSection({
                     <button
                         type="button"
                         className="record-section__copy-button"
-                        onClick={() => { void handleCopy(); }}
+                        onClick={() => {
+                            void handleCopy();
+                        }}
                         disabled={isEmpty || !copiedText}
                         title={
                             copyButton === "copied" ? "Copied" : "Copy records"
@@ -128,7 +132,9 @@ export function RecordSection({
                     <button
                         type="button"
                         className="record-section__toggle-button"
-                        onClick={() => { setIsRecordExpanded((prev) => !prev); }}
+                        onClick={() => {
+                            setIsRecordExpanded((prev) => !prev);
+                        }}
                         disabled={isEmpty}
                     >
                         <ChevronIcon

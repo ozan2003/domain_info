@@ -18,10 +18,11 @@ export async function lookupDomain(domain: string): Promise<LookupResponse> {
     const response = await fetch(`/api/lookup?${params.toString()}`);
 
     if (!response.ok) {
-        const body = await response.json().catch(() => null);
+        const body = (await response.json().catch(() => null)) as {
+            error?: string;
+        } | null;
         const message =
-            (body as { error?: string } | null)?.error ??
-            `Lookup failed (${response.status})`;
+            body?.error ?? `Lookup failed (${String(response.status)})`;
         throw new Error(message);
     }
 

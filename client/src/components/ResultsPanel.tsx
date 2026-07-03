@@ -46,7 +46,8 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                     count={data.mx.length}
                     copiedText={data.mx
                         .map(
-                            (record) => `${String(record.priority)} ${record.exchange}`,
+                            (record) =>
+                                `${String(record.priority)} ${record.exchange}`,
                         )
                         .join("\n")}
                 >
