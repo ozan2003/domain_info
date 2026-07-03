@@ -1,9 +1,6 @@
-/**
- * @file index.css
- * @fileoverview Global styles, CSS reset, and design tokens for the theme.
- */
+/* Global styles, CSS reset, and design tokens for the theme. */
 
-/* Design Tokens */
+/* Design Tokens, used in other css files */
 :root {
     --color-bg: hsl(220, 15%, 8%);
     --color-surface: hsl(220, 15%, 12%);
@@ -12,10 +9,10 @@
     --color-border-subtle: hsl(220, 10%, 16%);
 
     --color-text: hsl(0, 0%, 90%);
-    --color-text-secondary: hsl(0, 0%, 65%);
-    --color-text-muted: hsl(0, 0%, 45%);
+    --color-text-secondary: hsl(0, 0%, 70%);
+    --color-text-muted: hsl(0, 0%, 60%);
 
-    --color-accent: hsl(215, 70%, 55%);
+    --color-accent: hsl(215, 70%, 35%);
     --color-accent-hover: hsl(215, 70%, 48%);
     --color-accent-subtle: hsl(215, 70%, 55%, 0.12);
 
