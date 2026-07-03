@@ -21,6 +21,8 @@ interface RecordSectionProps {
     shouldStartExpanded?: boolean;
     /** Text content to copy when copy button is clicked. */
     copiedText?: string;
+    /** Optional info text to display over the records. */
+    infoText?: string;
     /** The record list content. */
     children: ReactNode;
 }
@@ -68,6 +70,7 @@ function CopyIcon({ className }: { className?: string }) {
  * @param param0.count - The number of records in this section.
  * @param param0.shouldStartExpanded - Whether the section should start expanded. Ignored if empty.
  * @param param0.copiedText - Text content to copy when copy button is clicked.
+ * @param param0.infoText - Optional info text to display over the records.
  * @param param0.children - The record list content.
  * @returns The record section JSX.
  */
@@ -76,6 +79,7 @@ export function RecordSection({
     count,
     shouldStartExpanded = true,
     copiedText,
+    infoText,
     children,
 }: RecordSectionProps) {
     const isEmpty = count === 0;
@@ -105,6 +109,7 @@ export function RecordSection({
         <div className="record-section">
             <div
                 className={`record-section__header ${isEmpty ? "record-section__header--empty" : ""}`}
+                title={infoText}
             >
                 <div className="record-section__title">
                     <span className="record-section__label">{label}</span>

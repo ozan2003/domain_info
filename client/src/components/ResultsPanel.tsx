@@ -8,6 +8,14 @@ import type { LookupResponse } from "../types";
 import { RecordSection } from "./RecordSection";
 import "./ResultsPanel.css";
 
+const INFO_TEXTS = {
+    A: "Address records. They map a domain name to one or more IPv4 (32-bit) addresses.",
+    MX: "Mail Exchange records. They list the mail servers that accept email for the domain, ordered by priority.",
+    NS: "Name Server records. They delegate the domain to the authoritative name servers that serve its records.",
+    TXT: "Text records. They hold arbitrary text, commonly used for SPF, DKIM, DMARC, and ownership verification.",
+    CNAME: "Canonical Name records. They alias one name to another; the target itself is resolved through DNS.",
+};
+
 interface ResultsPanelProps {
     data: LookupResponse;
 }
@@ -31,6 +39,7 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                     label="A"
                     count={data.a.length}
                     copiedText={data.a.join("\n")}
+                    infoText={INFO_TEXTS.A}
                 >
                     <ul className="record-list">
                         {data.a.map((record) => (
@@ -50,6 +59,7 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                                 `${String(record.priority)} ${record.exchange}`,
                         )
                         .join("\n")}
+                    infoText={INFO_TEXTS.MX}
                 >
                     <ul className="record-list">
                         {data.mx.map((record) => (
@@ -72,6 +82,7 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                     label="NS"
                     count={data.ns.length}
                     copiedText={data.ns.join("\n")}
+                    infoText={INFO_TEXTS.NS}
                 >
                     <ul className="record-list">
                         {data.ns.map((record) => (
@@ -88,6 +99,7 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                     copiedText={data.txt
                         .map((chunks) => chunks.join(""))
                         .join("\n")}
+                    infoText={INFO_TEXTS.TXT}
                 >
                     <ul className="record-list">
                         {data.txt.map((chunks, index) => (
@@ -102,6 +114,7 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                     label="CNAME"
                     count={data.cname.length}
                     copiedText={data.cname.join("\n")}
+                    infoText={INFO_TEXTS.CNAME}
                 >
                     <ul className="record-list">
                         {data.cname.map((record) => (
