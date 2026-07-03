@@ -1,10 +1,7 @@
-/**
- * @file App.css
- * @fileoverview Layout styles for the main App container.
- */
+/* Layout styles for the main App container. */
 
 .app {
-    max-width: 640px;
+    max-width: 45%;
     margin: 0 auto;
     padding: 48px 20px 80px;
 }
