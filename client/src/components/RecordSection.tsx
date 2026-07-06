@@ -4,7 +4,7 @@
  *
  * @author Ozan Malcı
  */
-import { useState, type ReactNode } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 
 /** Milliseconds to show the "Copied" state before reverting to idle. */
 const COPY_BUTTON_TIMEOUT_MS = 1500;
@@ -88,6 +88,15 @@ export function RecordSection({
         shouldStartExpanded && !isEmpty,
     );
     const [copyButton, setCopyButton] = useState<CopyButtonState>("idle");
+    const timerRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current !== null) {
+                clearTimeout(timerRef.current);
+            }
+        };
+    }, []);
 
     async function handleCopy() {
         if (!copiedText) {
@@ -100,7 +109,7 @@ export function RecordSection({
         } catch {
             setCopyButton("error");
         }
-        window.setTimeout(() => {
+        timerRef.current = window.setTimeout(() => {
             setCopyButton("idle");
         }, COPY_BUTTON_TIMEOUT_MS);
     }
