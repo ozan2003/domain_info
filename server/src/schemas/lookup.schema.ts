@@ -19,7 +19,7 @@ export const lookupQuerySchema = z.object({
 // Zod schema used for runtime validation. So we can't use `MxRecord` from `node:dns`.
 export const mxRecordSchema = z.object({
     exchange: z.string(),
-    priority: z.int().nonnegative(), // The preference number is an u16 (RFC 1035).
+    priority: z.int().nonnegative().max(65535), // The preference number is an u16 (RFC 1035).
 });
 
 export const lookupResponseSchema = z.object({
@@ -41,6 +41,6 @@ export type DnsLookupResult = {
     a: string[];
     mx: MXRecord[];
     ns: string[];
-    txt: string[][];
+    txt: string[];
     cname: string[];
 };

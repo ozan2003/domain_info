@@ -28,7 +28,7 @@ type LookupWithRecords = Prisma.LookupGetPayload<{
 function toLookupResponse(lookup: LookupWithRecords): LookupResponse {
     return {
         domain: lookup.domain,
-        isCached: lookup.cached,
+        isCached: lookup.isCached,
         createdAt: lookup.createdAt.toISOString(),
         a: lookup.aRecords.map((a) => a.address),
         mx: lookup.mxRecords.map((mx) => ({
@@ -36,9 +36,7 @@ function toLookupResponse(lookup: LookupWithRecords): LookupResponse {
             priority: mx.priority,
         })),
         ns: lookup.nsRecords.map((ns) => ns.nameserver),
-        // Each TXT record value is stored as a single joined string,
-        // but the DNS API returns string[][], so we wrap each in an array.
-        txt: lookup.txtRecords.map((txt) => [txt.value]),
+        txt: lookup.txtRecords.map((txt) => txt.value),
         cname: lookup.cnameRecords.map((cname) => cname.value),
     };
 }
@@ -137,9 +135,8 @@ export async function performLookup(domain: string): Promise<LookupResponse> {
                 create: dnsResult.ns.map((ns) => ({ nameserver: ns })),
             },
             txtRecords: {
-                // DNS TXT records come as string[][] — join each chunk into a single string for storage.
-                create: dnsResult.txt.map((txtChunks) => ({
-                    value: txtChunks.join(""),
+                create: dnsResult.txt.map((txt) => ({
+                    value: txt,
                 })),
             },
             cnameRecords: {
