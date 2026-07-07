@@ -5,6 +5,8 @@
  * @author Ozan Malcı
  */
 
+import "./ErrorMessage.css";
+
 interface ErrorMessageProps {
     message: string;
 }

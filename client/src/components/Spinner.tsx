@@ -5,6 +5,8 @@
  * @author Ozan Malcı
  */
 
+import "./Spinner.css";
+
 export function Spinner() {
     return (
         <div className="spinner-container">

@@ -5,6 +5,7 @@
  * @author Ozan Malcı
  */
 import { useState, useRef, useEffect, type ReactNode } from "react";
+import "./RecordSection.css";
 
 /** Milliseconds to show the "Copied" state before reverting to idle. */
 const COPY_BUTTON_TIMEOUT_MS = 1500;
