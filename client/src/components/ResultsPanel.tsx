@@ -97,14 +97,13 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                     label="TXT"
                     count={data.txt.length}
                     copiedText={data.txt
-                        .map((chunks) => chunks.join(""))
                         .join("\n")}
                     infoText={INFO_TEXTS.TXT}
                 >
                     <ul className="record-list">
-                        {data.txt.map((chunks, index) => (
+                        {data.txt.map((txt, index) => (
                             <li key={index} className="record-list__item">
-                                {chunks.join("")}
+                                {txt}
                             </li>
                         ))}
                     </ul>

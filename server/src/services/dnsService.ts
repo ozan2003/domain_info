@@ -72,7 +72,7 @@ export async function lookupDomain(domain: string): Promise<LookupResponse> {
                 }) satisfies MXRecord,
         ),
         ns: nsRecords ?? [],
-        txt: txtRecords ?? [],
+        txt: (txtRecords ?? []).map((record) => record.join("")),
         cname: cnameRecords ?? [],
     };
 }

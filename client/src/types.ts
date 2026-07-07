@@ -16,6 +16,6 @@ export interface LookupResponse {
     a: string[];
     mx: MXRecord[];
     ns: string[];
-    txt: string[][];
+    txt: string[];
     cname: string[];
 }
