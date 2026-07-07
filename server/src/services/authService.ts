@@ -73,7 +73,13 @@ export async function signToken(
  * @returns The decoded auth user.
  */
 export async function verifyToken(token: string): Promise<AuthUser> {
-    const payload = await verify(token, JWT_SECRET, "HS256");
+    let payload;
+    try {
+        payload = await verify(token, JWT_SECRET, "HS256");
+    } catch {
+        throw new HTTPException(401, { message: "invalid or expired token" });
+    }
+
     const userId = payload.userId as number | undefined;
     const email = payload.email as string | undefined;
     if (!userId || !email) {
