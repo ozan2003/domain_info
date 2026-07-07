@@ -29,7 +29,7 @@ export const lookupResponseSchema = z.object({
     a: z.array(z.string()),
     mx: z.array(mxRecordSchema),
     ns: z.array(z.string()),
-    txt: z.array(z.array(z.string())),
+    txt: z.array(z.string()),
     cname: z.array(z.string()),
 });
 
