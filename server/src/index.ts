@@ -10,23 +10,38 @@ import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { lookupHandler } from "./routes/lookup.js";
+import {
+    registerHandler,
+    loginHandler,
+    logoutHandler,
+    meHandler,
+} from "./routes/auth.js";
+import { requireAuth } from "./middleware/requireAuth.js";
 
 const app = new Hono();
 const PORT = Number(process.env.PORT) || 6633;
 
 app.use("*", cors());
 
-// Sanity check.
 app.get("/health", (ctx) => ctx.json({ isOk: true }));
-// Domain lookup happens here.
-// Example: GET /api/lookup?domain=example.com
-app.get("/api/lookup", lookupHandler);
-// History.
-app.get("/api/history", () => {
+
+// Auth — public
+app.post("/api/auth/register", registerHandler);
+app.post("/api/auth/login", loginHandler);
+
+// Auth — protected
+app.post("/api/auth/logout", requireAuth, logoutHandler);
+app.get("/api/auth/me", requireAuth, meHandler);
+
+// API — protected
+app.get("/api/lookup", requireAuth, lookupHandler);
+
+// History
+app.get("/api/history", requireAuth, () => {
     throw new Error("TODO");
 });
 // Statistics
-app.get("/api/stats", () => {
+app.get("/api/stats", requireAuth, () => {
     throw new Error("TODO");
 });
 

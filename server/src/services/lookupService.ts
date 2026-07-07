@@ -75,7 +75,7 @@ export async function performLookup(domain: string): Promise<LookupResponse> {
         const lookup = await prisma.lookup.create({
             data: {
                 domain,
-                cached: true,
+                isCached: true,
                 aRecords: {
                     create: cached.aRecords.map((a) => ({
                         address: a.address,
@@ -121,7 +121,7 @@ export async function performLookup(domain: string): Promise<LookupResponse> {
     const lookup = await prisma.lookup.create({
         data: {
             domain,
-            cached: false,
+            isCached: false,
             aRecords: {
                 create: dnsResult.a.map((a) => ({ address: a })),
             },
