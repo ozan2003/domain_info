@@ -38,7 +38,6 @@
 }
 
 .record-list__mx-priority {
-    font-size: 0.75rem;
     color: var(--color-text-muted);
     min-width: 24px;
 }
