@@ -244,7 +244,8 @@ describe("GET /api/lookup (protected)", () => {
         const body = await res.json();
         expect(body.domain).toBe("localhost");
         expect(Array.isArray(body.a)).toBe(true);
-    });
+        expect(Array.isArray(body.aaaa)).toBe(true);
+    }, 15_000); // 15s
 
     it("returns 401 without authentication", async () => {
         const res = await app.request("/api/lookup?domain=localhost");
