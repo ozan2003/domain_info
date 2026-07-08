@@ -67,12 +67,14 @@ export async function lookupDomain(domain: string): Promise<DnsLookupResult> {
         domain,
         a: aRecords.unwrapOr([]),
         aaaa: aaaaRecords.unwrapOr([]),
-        mx: mxRecords.unwrapOr([]).map(
-            (record) =>
-                ({
-                    exchange: record.exchange,
-                    priority: record.priority,
-                }) satisfies MXRecord,
+        mx: mxRecords.mapOr([], (records) =>
+            records.map(
+                (record) =>
+                    ({
+                        exchange: record.exchange,
+                        priority: record.priority,
+                    }) satisfies MXRecord,
+            ),
         ),
         ns: nsRecords.unwrapOr([]),
         txt: txtRecords.mapOr([], (records) =>
