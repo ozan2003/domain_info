@@ -13,7 +13,10 @@ export interface MXRecord {
 
 export interface LookupResponse {
     domain: string;
+    isCached: boolean;
+    createdAt: string;
     a: string[];
+    aaaa: string[];
     mx: MXRecord[];
     ns: string[];
     txt: string[];
