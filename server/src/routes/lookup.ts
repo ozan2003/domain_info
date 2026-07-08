@@ -28,8 +28,10 @@ export async function lookupHandler(ctx: Context): Promise<Response> {
         });
     }
 
+    const authUser = ctx.get("authUser");
     const result = (await performLookup(
         parsedQuery.data.domain,
+        authUser.userId,
     )) satisfies LookupResponse;
     return ctx.json(result);
 }

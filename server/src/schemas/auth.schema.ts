@@ -6,12 +6,19 @@
  */
 import * as z from "zod";
 
+const MIN_PASSWORD_LENGTH = 8;
+
 /**
  * Validation schema for user registration and login.
  */
 export const registerSchema = z.object({
     email: z.email().trim().toLowerCase(),
-    password: z.string().min(8, "password must be at least 8 characters"),
+    password: z
+        .string()
+        .min(
+            MIN_PASSWORD_LENGTH,
+            `password must be at least ${MIN_PASSWORD_LENGTH} characters`,
+        ),
 });
 
 export const loginSchema = registerSchema;

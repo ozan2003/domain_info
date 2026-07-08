@@ -109,7 +109,7 @@ export async function registerUser(
         data: { email, passwordHash },
     });
 
-    return { userId: user.id, email: user.email };
+    return { userId: user.id, email: user.email } satisfies AuthUser;
 }
 
 /**
@@ -133,5 +133,5 @@ export async function loginUser(
         throw new HTTPException(401, { message: "invalid email or password" });
     }
 
-    return { userId: user.id, email: user.email };
+    return { userId: user.id, email: user.email } satisfies AuthUser;
 }

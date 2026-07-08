@@ -52,18 +52,26 @@ async function resolveOptional<T>(
  * @returns A promise that resolves to the raw DNS record payload.
  */
 export async function lookupDomain(domain: string): Promise<DnsLookupResult> {
-    const [aRecords, mxRecords, nsRecords, txtRecords, cnameRecords] =
-        await Promise.all([
-            resolveOptional(() => dns.resolve4(domain)),
-            resolveOptional(() => dns.resolveMx(domain)),
-            resolveOptional(() => dns.resolveNs(domain)),
-            resolveOptional(() => dns.resolveTxt(domain)),
-            resolveOptional(() => dns.resolveCname(domain)),
-        ]);
+    const [
+        aRecords,
+        aaaaRecords,
+        mxRecords,
+        nsRecords,
+        txtRecords,
+        cnameRecords,
+    ] = await Promise.all([
+        resolveOptional(() => dns.resolve4(domain)),
+        resolveOptional(() => dns.resolve6(domain)),
+        resolveOptional(() => dns.resolveMx(domain)),
+        resolveOptional(() => dns.resolveNs(domain)),
+        resolveOptional(() => dns.resolveTxt(domain)),
+        resolveOptional(() => dns.resolveCname(domain)),
+    ]);
 
     return {
         domain,
         a: aRecords ?? [],
+        aaaa: aaaaRecords ?? [],
         mx: (mxRecords ?? []).map(
             (record) =>
                 ({

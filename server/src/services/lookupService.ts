@@ -15,6 +15,7 @@ const CACHE_TTL_MS = 60 * 60 * 1000;
 type LookupWithRecords = Prisma.LookupGetPayload<{
     include: {
         aRecords: true;
+        aaaaRecords: true;
         mxRecords: true;
         nsRecords: true;
         txtRecords: true;
@@ -31,6 +32,7 @@ function toLookupResponse(lookup: LookupWithRecords): LookupResponse {
         isCached: lookup.isCached,
         createdAt: lookup.createdAt.toISOString(),
         a: lookup.aRecords.map((a) => a.address),
+        aaaa: lookup.aaaaRecords.map((aaaa) => aaaa.address),
         mx: lookup.mxRecords.map((mx) => ({
             exchange: mx.exchange,
             priority: mx.priority,
@@ -49,9 +51,13 @@ function toLookupResponse(lookup: LookupWithRecords): LookupResponse {
  * Every call writes to the DB so the history timeline is complete.
  *
  * @param domain The domain name to look up.
+ * @param userId The database ID of the user performing the lookup.
  * @returns The lookup response including DNS records, cache status, and timestamp.
  */
-export async function performLookup(domain: string): Promise<LookupResponse> {
+export async function performLookup(
+    domain: string,
+    userId?: number,
+): Promise<LookupResponse> {
     const cacheThreshold = new Date(Date.now() - CACHE_TTL_MS);
 
     // Check for a recent lookup of the same domain.
@@ -62,6 +68,7 @@ export async function performLookup(domain: string): Promise<LookupResponse> {
         },
         include: {
             aRecords: true,
+            aaaaRecords: true,
             mxRecords: true,
             nsRecords: true,
             txtRecords: true,
@@ -76,9 +83,15 @@ export async function performLookup(domain: string): Promise<LookupResponse> {
             data: {
                 domain,
                 isCached: true,
+                ...(userId != null ? { userId } : {}),
                 aRecords: {
                     create: cached.aRecords.map((a) => ({
                         address: a.address,
+                    })),
+                },
+                aaaaRecords: {
+                    create: cached.aaaaRecords.map((aaaa) => ({
+                        address: aaaa.address,
                     })),
                 },
                 mxRecords: {
@@ -105,6 +118,7 @@ export async function performLookup(domain: string): Promise<LookupResponse> {
             },
             include: {
                 aRecords: true,
+                aaaaRecords: true,
                 mxRecords: true,
                 nsRecords: true,
                 txtRecords: true,
@@ -122,8 +136,12 @@ export async function performLookup(domain: string): Promise<LookupResponse> {
         data: {
             domain,
             isCached: false,
+            ...(userId != null ? { userId } : {}),
             aRecords: {
                 create: dnsResult.a.map((a) => ({ address: a })),
+            },
+            aaaaRecords: {
+                create: dnsResult.aaaa.map((aaaa) => ({ address: aaaa })),
             },
             mxRecords: {
                 create: dnsResult.mx.map((mx) => ({
@@ -147,6 +165,7 @@ export async function performLookup(domain: string): Promise<LookupResponse> {
         },
         include: {
             aRecords: true,
+            aaaaRecords: true,
             mxRecords: true,
             nsRecords: true,
             txtRecords: true,
