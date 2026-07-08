@@ -10,6 +10,7 @@ import { setCookie, deleteCookie } from "hono/cookie";
 import { Option } from "oxide.ts";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
 import { registerUser, loginUser, signToken } from "../services/authService.js";
+import type { AppEnv } from "../types/app.js";
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
@@ -105,7 +106,7 @@ export function logoutHandler(ctx: Context): Response {
  * @param ctx The Hono context.
  * @returns JSON response with the current user.
  */
-export function meHandler(ctx: Context): Response {
+export function meHandler(ctx: Context<AppEnv>): Response {
     const authUser = ctx.get("authUser");
     return ctx.json(authUser);
 }

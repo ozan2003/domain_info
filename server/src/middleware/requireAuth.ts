@@ -9,13 +9,7 @@ import type { Context, Next } from "hono";
 import { getCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { verifyToken } from "../services/authService.js";
-import type { AuthUser } from "../schemas/auth.schema.js";
-
-declare module "hono" {
-    interface ContextVariableMap {
-        authUser: AuthUser;
-    }
-}
+import type { AppEnv } from "../types/app.js";
 
 /**
  * Middleware that requires a valid JWT cookie. Attaches `authUser` to context.
@@ -24,7 +18,10 @@ declare module "hono" {
  * @param ctx The Hono context.
  * @param next The next middleware/handler in the chain.
  */
-export async function requireAuth(ctx: Context, next: Next): Promise<void> {
+export async function requireAuth(
+    ctx: Context<AppEnv>,
+    next: Next,
+): Promise<void> {
     const token = getCookie(ctx, "token");
     if (!token) {
         throw new HTTPException(401, { message: "authentication required" });

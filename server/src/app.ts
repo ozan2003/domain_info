@@ -10,6 +10,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { lookupHandler } from "./routes/lookup.js";
+import { tracerouteHandler } from "./routes/traceroute.js";
 import {
     registerHandler,
     loginHandler,
@@ -17,8 +18,9 @@ import {
     meHandler,
 } from "./routes/auth.js";
 import { requireAuth } from "./middleware/requireAuth.js";
+import type { AppEnv } from "./types/app.js";
 
-const app = new Hono();
+const app = new Hono<AppEnv>();
 
 app.use("*", cors());
 
@@ -34,6 +36,7 @@ app.get("/api/auth/me", requireAuth, meHandler);
 
 // API — protected
 app.get("/api/lookup", requireAuth, lookupHandler);
+app.get("/api/traceroute", requireAuth, tracerouteHandler);
 
 // History
 app.get("/api/history", requireAuth, () => {
