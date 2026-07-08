@@ -6,6 +6,7 @@
  */
 import { prisma } from "../db.js";
 import { lookupDomain } from "./dnsService.js";
+import { Option } from "oxide.ts";
 import type { Prisma } from "../generated/prisma/client.js";
 import type { LookupResponse } from "../schemas/lookup.schema.js";
 
@@ -83,7 +84,9 @@ export async function performLookup(
             data: {
                 domain,
                 isCached: true,
-                ...(userId != null ? { userId } : {}),
+                ...Option.from(userId).mapOr<object>({}, (id) => ({
+                    userId: id,
+                })),
                 aRecords: {
                     create: cached.aRecords.map((a) => ({
                         address: a.address,
@@ -136,7 +139,7 @@ export async function performLookup(
         data: {
             domain,
             isCached: false,
-            ...(userId != null ? { userId } : {}),
+            ...Option.from(userId).mapOr<object>({}, (id) => ({ userId: id })),
             aRecords: {
                 create: dnsResult.a.map((a) => ({ address: a })),
             },

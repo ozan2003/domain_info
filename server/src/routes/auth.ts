@@ -7,6 +7,7 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { setCookie, deleteCookie } from "hono/cookie";
+import { Option } from "oxide.ts";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
 import { registerUser, loginUser, signToken } from "../services/authService.js";
 
@@ -49,7 +50,9 @@ export async function registerHandler(ctx: Context): Promise<Response> {
 
     if (!parsed.success) {
         throw new HTTPException(400, {
-            message: parsed.error.issues[0]?.message ?? "invalid input",
+            message: Option.from(parsed.error.issues[0]?.message).unwrapOr(
+                "invalid input",
+            ),
         });
     }
 
@@ -72,7 +75,9 @@ export async function loginHandler(ctx: Context): Promise<Response> {
 
     if (!parsed.success) {
         throw new HTTPException(400, {
-            message: parsed.error.issues[0]?.message ?? "invalid input",
+            message: Option.from(parsed.error.issues[0]?.message).unwrapOr(
+                "invalid input",
+            ),
         });
     }
 

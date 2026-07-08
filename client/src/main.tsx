@@ -6,13 +6,13 @@
  */
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Option } from "oxide.ts";
 import App from "./App";
 import "./index.css";
 
-const rootElement = document.getElementById("root");
-if (!rootElement) {
-    throw new Error("Root element not found");
-}
+const rootElement = Option.from(document.getElementById("root")).expect(
+    "Root element not found",
+);
 const root = createRoot(rootElement);
 
 root.render(

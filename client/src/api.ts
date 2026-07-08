@@ -5,15 +5,17 @@
  * @author Ozan Malcı
  */
 import type { LookupResponse } from "./types";
+import { type Result, Ok, Err } from "oxide.ts";
 
 /**
  * Fetches DNS records for a given domain from the lookup API.
  *
  * @param domain The domain name to look up.
- * @returns A promise that resolves to the DNS lookup response.
- * @throws An error if the request fails or the server returns a non-OK status.
+ * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
  */
-export async function lookupDomain(domain: string): Promise<LookupResponse> {
+export async function lookupDomain(
+    domain: string,
+): Promise<Result<LookupResponse, string>> {
     const params = new URLSearchParams({ domain });
     const response = await fetch(`/api/lookup?${params.toString()}`);
 
@@ -23,8 +25,9 @@ export async function lookupDomain(domain: string): Promise<LookupResponse> {
         } | null;
         const message =
             body?.error ?? `Lookup failed (${String(response.status)})`;
-        throw new Error(message);
+        return Err(message);
     }
 
-    return response.json() as Promise<LookupResponse>;
+    const data = (await response.json()) as LookupResponse;
+    return Ok(data);
 }

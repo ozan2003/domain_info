@@ -6,31 +6,26 @@
  */
 import { promises as dns } from "node:dns";
 import type { DnsLookupResult, MXRecord } from "../schemas/lookup.schema.js";
+import { type Option, Some, None } from "oxide.ts";
 
 /**
  * Helper function for resolving individual DNS records.
  *
  * @param resolver A function returns a promise that resolves to said DNS record.
- * @returns A promise resolves to the DNS record if it exists, or null if it doesn't.
+ * @returns `Some(records)` if resolution succeeds, or `None` if the record type doesn't exist.
  */
 async function resolveOptional<T>(
     resolver: () => Promise<T>,
-): Promise<T | null> {
+): Promise<Option<T>> {
     try {
-        return await resolver();
+        return Some(await resolver());
     } catch (error) {
         const code =
             error instanceof Error
                 ? (error as { code?: string }).code
                 : undefined;
-        switch (code) {
-            case "ENODATA":
-            case "ENOTFOUND": {
-                return null;
-            }
-            default: {
-                break;
-            }
+        if (code === "ENODATA" || code === "ENOTFOUND") {
+            return None;
         }
 
         throw error;
@@ -70,17 +65,19 @@ export async function lookupDomain(domain: string): Promise<DnsLookupResult> {
 
     return {
         domain,
-        a: aRecords ?? [],
-        aaaa: aaaaRecords ?? [],
-        mx: (mxRecords ?? []).map(
+        a: aRecords.unwrapOr([]),
+        aaaa: aaaaRecords.unwrapOr([]),
+        mx: mxRecords.unwrapOr([]).map(
             (record) =>
                 ({
                     exchange: record.exchange,
                     priority: record.priority,
                 }) satisfies MXRecord,
         ),
-        ns: nsRecords ?? [],
-        txt: (txtRecords ?? []).map((record) => record.join("")),
-        cname: cnameRecords ?? [],
+        ns: nsRecords.unwrapOr([]),
+        txt: txtRecords.mapOr([], (records) =>
+            records.map((record) => record.join("")),
+        ),
+        cname: cnameRecords.unwrapOr([]),
     };
 }

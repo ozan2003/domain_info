@@ -10,6 +10,7 @@ import "./ResultsPanel.css";
 
 const INFO_TEXTS = {
     A: "Address records. They map a domain name to one or more IPv4 (32-bit) addresses.",
+    AAAA: "IPv6 address records. They map a domain name to one or more IPv6 (128-bit) addresses.",
     MX: "Mail Exchange records. They list the mail servers that accept email for the domain, ordered by priority.",
     NS: "Name Server records. They delegate the domain to the authoritative name servers that serve its records.",
     TXT: "Text records. They hold arbitrary text, commonly used for SPF, DKIM, DMARC, and ownership verification.",
@@ -43,6 +44,21 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                 >
                     <ul className="record-list">
                         {data.a.map((record) => (
+                            <li key={record} className="record-list__item">
+                                {record}
+                            </li>
+                        ))}
+                    </ul>
+                </RecordSection>
+
+                <RecordSection
+                    label="AAAA"
+                    count={data.aaaa.length}
+                    copiedText={data.aaaa.join("\n")}
+                    infoText={INFO_TEXTS.AAAA}
+                >
+                    <ul className="record-list">
+                        {data.aaaa.map((record) => (
                             <li key={record} className="record-list__item">
                                 {record}
                             </li>

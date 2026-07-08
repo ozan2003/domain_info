@@ -6,6 +6,7 @@
  */
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { Option } from "oxide.ts";
 import {
     lookupQuerySchema,
     type LookupResponse,
@@ -23,8 +24,9 @@ export async function lookupHandler(ctx: Context): Promise<Response> {
 
     if (!parsedQuery.success) {
         throw new HTTPException(400, {
-            message:
-                parsedQuery.error.issues[0]?.message ?? "Invalid domain query",
+            message: Option.from(parsedQuery.error.issues[0]?.message).unwrapOr(
+                "Invalid domain query",
+            ),
         });
     }
 

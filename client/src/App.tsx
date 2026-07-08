@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { lookupDomain } from "./api";
 import type { LookupResponse } from "./types";
+import { type Option, Some, None, match } from "oxide.ts";
 import { LookupForm } from "./components/LookupForm";
 import { Spinner } from "./components/Spinner";
 import { ErrorMessage } from "./components/ErrorMessage";
@@ -15,27 +16,25 @@ import "./App.css";
 
 /** Root application component that orchestrates the domain lookup workflow. */
 export default function App() {
-    const [result, setResult] = useState<LookupResponse | null>(null);
+    const [result, setResult] = useState<Option<LookupResponse>>(None);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<Option<string>>(None);
 
     async function handleLookup(domain: string) {
         setIsLoading(true);
-        setError(null);
-        setResult(null);
+        setResult(None);
+        setError(None);
 
-        try {
-            const data = await lookupDomain(domain);
-            setResult(data);
-        } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "An unexpected error occurred",
-            );
-        } finally {
-            setIsLoading(false);
-        }
+        match(await lookupDomain(domain), {
+            Ok: (data) => {
+                setResult(Some(data));
+            },
+            Err: (msg) => {
+                setError(Some(msg));
+            },
+        });
+
+        setIsLoading(false);
     }
 
     return (
@@ -47,11 +46,20 @@ export default function App() {
                 </p>
             </header>
 
-            <LookupForm onSubmit={(domain) => void handleLookup(domain)} isLoading={isLoading} />
+            <LookupForm
+                onSubmit={(domain) => void handleLookup(domain)}
+                isLoading={isLoading}
+            />
 
             {isLoading && <Spinner />}
-            {error && <ErrorMessage message={error} />}
-            {result && <ResultsPanel data={result} />}
+            {match(error, {
+                Some: (msg) => <ErrorMessage message={msg} />,
+                None: () => null,
+            })}
+            {match(result, {
+                Some: (data) => <ResultsPanel data={data} />,
+                None: () => null,
+            })}
         </div>
     );
 }
