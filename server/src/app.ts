@@ -11,6 +11,7 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { lookupHandler } from "./routes/lookup.js";
 import { tracerouteHandler } from "./routes/traceroute.js";
+import { whoisHandler } from "./routes/whois.js";
 import {
     registerHandler,
     loginHandler,
@@ -37,6 +38,7 @@ app.get("/api/auth/me", requireAuth, meHandler);
 // API — protected
 app.get("/api/lookup", requireAuth, lookupHandler);
 app.get("/api/traceroute", requireAuth, tracerouteHandler);
+app.get("/api/whois", requireAuth, whoisHandler);
 
 // History
 app.get("/api/history", requireAuth, () => {
