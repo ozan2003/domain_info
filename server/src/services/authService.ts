@@ -14,8 +14,20 @@ import type { AuthUser } from "../schemas/auth.schema.js";
 const JWT_SECRET = process.env.JWT_SECRET ?? "";
 const JWT_EXPIRY_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
+const MIN_JWT_SECRET_LENGTH = 32;
+
 if (!JWT_SECRET) {
     throw new Error("JWT_SECRET environment variable is not set");
+}
+if (JWT_SECRET.length < MIN_JWT_SECRET_LENGTH) {
+    throw new Error(
+        `JWT_SECRET must be at least ${MIN_JWT_SECRET_LENGTH} characters (got ${JWT_SECRET.length})`,
+    );
+}
+if (JWT_SECRET.toLowerCase().includes("change-me")) {
+    throw new Error(
+        "JWT_SECRET is still the placeholder value. Set a real secret in .env",
+    );
 }
 
 /**
