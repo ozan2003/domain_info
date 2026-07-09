@@ -9,6 +9,20 @@ import type { DnsLookupResult, MXRecord } from "../schemas/lookup.schema.js";
 import { type Option, Some, None } from "oxide.ts";
 
 /**
+ * DNS error codes that mean "this record type doesn't exist or the resolver
+ * couldn't answer it." Treating them as `None` lets a single record failure
+ * not take down the entire lookup response.
+ */
+const MISSING_RECORD_CODES: ReadonlySet<string> = new Set([
+    "ENODATA",
+    "ENOTFOUND",
+    "ESERVFAIL",
+    "EREFUSED",
+    "EFORMERR",
+    "EBADNAME",
+]);
+
+/**
  * Helper function for resolving individual DNS records.
  *
  * @param resolver A function returns a promise that resolves to said DNS record.
@@ -24,7 +38,7 @@ async function resolveOptional<T>(
             error instanceof Error
                 ? (error as { code?: string }).code
                 : undefined;
-        if (code === "ENODATA" || code === "ENOTFOUND") {
+        if (code !== undefined && MISSING_RECORD_CODES.has(code)) {
             return None;
         }
 
