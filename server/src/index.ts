@@ -9,6 +9,14 @@ import { app } from "./app.js";
 
 const PORT = Number(process.env.PORT) || 6633;
 
+process.on("unhandledRejection", (reason) => {
+    console.error("[unhandledRejection]", reason);
+});
+
+process.on("uncaughtException", (error) => {
+    console.error("[uncaughtException]", error);
+});
+
 serve(
     {
         fetch: app.fetch,
