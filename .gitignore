@@ -156,3 +156,4 @@ dist-ssr
 
 # Prisma
 server/src/generated/prisma
+*db
