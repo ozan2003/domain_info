@@ -12,6 +12,7 @@ import { HTTPException } from "hono/http-exception";
 import { lookupHandler } from "./routes/lookup.js";
 import { tracerouteHandler } from "./routes/traceroute.js";
 import { whoisHandler } from "./routes/whois.js";
+import { asnHandler } from "./routes/asn.js";
 import {
     registerHandler,
     loginHandler,
@@ -39,6 +40,7 @@ app.get("/api/auth/me", requireAuth, meHandler);
 app.get("/api/lookup", requireAuth, lookupHandler);
 app.get("/api/traceroute", requireAuth, tracerouteHandler);
 app.get("/api/whois", requireAuth, whoisHandler);
+app.get("/api/asn", requireAuth, asnHandler);
 
 // History
 app.get("/api/history", requireAuth, () => {
