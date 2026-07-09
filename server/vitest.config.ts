@@ -5,6 +5,7 @@ const testDbPath = path.resolve(import.meta.dirname, "prisma", "test.db");
 
 export default defineConfig({
     test: {
+        fileParallelism: false,
         env: {
             DATABASE_URL: `file:${testDbPath}`,
             JWT_SECRET: "test-jwt-secret-do-not-use-in-production",
