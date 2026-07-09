@@ -98,3 +98,17 @@ export async function lookupDomain(domain: string): Promise<DnsLookupResult> {
         cname: cnameRecords.unwrapOr([]),
     };
 }
+
+/**
+ * Resolves the PTR (reverse DNS) hostnames for an IP address.
+ *
+ * Returns an empty array if the IP has no PTR record, matching the
+ * "absent record" semantics of the other lookups in this module.
+ *
+ * @param ip The IPv4 or IPv6 address to look up.
+ * @returns A promise resolving to the list of hostnames, possibly empty.
+ */
+export async function lookupPtr(ip: string): Promise<string[]> {
+    const ptrRecords = await resolveOptional(() => dns.resolvePtr(ip));
+    return ptrRecords.unwrapOr([]);
+}
