@@ -2,144 +2,144 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+    id           Int      @id @default(autoincrement())
+    email        String   @unique
+    passwordHash String
+    createdAt    DateTime @default(now())
 
-  lookups      Lookup[]
-  traceroutes  Traceroute[]
-  whoisLookups Whois[]
-  asnLookups   ASNLookup[]
+    lookups      Lookup[]
+    traceroutes  Traceroute[]
+    whoisLookups Whois[]
+    asnLookups   ASNLookup[]
 }
 
 // ─── DNS Lookup ──────────────────────────────────────────────────────────────
 
 model Lookup {
-  id        Int      @id @default(autoincrement())
-  domain    String
-  isCached  Boolean  @default(false) @map("cached")
-  createdAt DateTime @default(now())
+    id        Int      @id @default(autoincrement())
+    domain    String
+    isCached  Boolean  @default(false) @map("cached")
+    createdAt DateTime @default(now())
 
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int?
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  aRecords     ARecord[]
-  mxRecords    MXRecord[]
-  nsRecords    NSRecord[]
-  txtRecords   TXTRecord[]
-  cnameRecords CNAMERecord[]
-  aaaaRecords  AAAARecord[]
+    aRecords     ARecord[]
+    mxRecords    MXRecord[]
+    nsRecords    NSRecord[]
+    txtRecords   TXTRecord[]
+    cnameRecords CNAMERecord[]
+    aaaaRecords  AAAARecord[]
 }
 
 model ARecord {
-  id       Int    @id @default(autoincrement())
-  address  String
-  lookupId Int
-  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+    id       Int    @id @default(autoincrement())
+    address  String
+    lookupId Int
+    lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
 }
 
 model AAAARecord {
-  id       Int    @id @default(autoincrement())
-  address  String
-  lookupId Int
-  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+    id       Int    @id @default(autoincrement())
+    address  String
+    lookupId Int
+    lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
 }
 
 model MXRecord {
-  id       Int    @id @default(autoincrement())
-  exchange String
-  priority Int
-  lookupId Int
-  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+    id       Int    @id @default(autoincrement())
+    exchange String
+    priority Int
+    lookupId Int
+    lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
 }
 
 model NSRecord {
-  id         Int    @id @default(autoincrement())
-  nameserver String
-  lookupId   Int
-  lookup     Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+    id         Int    @id @default(autoincrement())
+    nameserver String
+    lookupId   Int
+    lookup     Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
 }
 
 model TXTRecord {
-  id       Int    @id @default(autoincrement())
-  value    String
-  lookupId Int
-  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+    id       Int    @id @default(autoincrement())
+    value    String
+    lookupId Int
+    lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
 }
 
 model CNAMERecord {
-  id       Int    @id @default(autoincrement())
-  value    String
-  lookupId Int
-  lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
+    id       Int    @id @default(autoincrement())
+    value    String
+    lookupId Int
+    lookup   Lookup @relation(fields: [lookupId], references: [id], onDelete: Cascade)
 }
 
 // ─── Traceroute ──────────────────────────────────────────────────────────────
 
 model Traceroute {
-  id            Int      @id @default(autoincrement())
-  domain        String
-  destinationIp String?
-  isCached      Boolean  @default(false) @map("cached")
-  createdAt     DateTime @default(now())
+    id            Int      @id @default(autoincrement())
+    domain        String
+    destinationIp String?
+    isCached      Boolean  @default(false) @map("cached")
+    createdAt     DateTime @default(now())
 
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int?
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  hops Hop[]
+    hops Hop[]
 }
 
 model Hop {
-  id        Int    @id @default(autoincrement())
-  hopNumber Int
-  ip        String
-  rtt1      Float?
+    id        Int    @id @default(autoincrement())
+    hopNumber Int
+    ip        String
+    rtt1      Float?
 
-  tracerouteId Int
-  traceroute   Traceroute @relation(fields: [tracerouteId], references: [id], onDelete: Cascade)
+    tracerouteId Int
+    traceroute   Traceroute @relation(fields: [tracerouteId], references: [id], onDelete: Cascade)
 }
 
 // ─── WHOIS ───────────────────────────────────────────────────────────────────
 
 model Whois {
-  id             Int      @id @default(autoincrement())
-  domain         String
-  rawData        String
-  registrar      String?
-  creationDate   String?
-  expirationDate String?
-  nameServers    String?
-  isCached       Boolean  @default(false) @map("cached")
-  createdAt      DateTime @default(now())
+    id             Int      @id @default(autoincrement())
+    domain         String
+    rawData        String
+    registrar      String?
+    creationDate   String?
+    expirationDate String?
+    nameServers    String?
+    isCached       Boolean  @default(false) @map("cached")
+    createdAt      DateTime @default(now())
 
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int?
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 // ─── ASN ─────────────────────────────────────────────────────────────────────
 
 model ASNLookup {
-  id        Int      @id @default(autoincrement())
-  ip        String
-  asNumber  Int?
-  asName    String?
-  prefix    String?
-  isCached  Boolean  @default(false) @map("cached")
-  createdAt DateTime @default(now())
+    id        Int      @id @default(autoincrement())
+    ip        String
+    asNumber  Int?
+    asName    String?
+    prefix    String?
+    isCached  Boolean  @default(false) @map("cached")
+    createdAt DateTime @default(now())
 
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int?
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
