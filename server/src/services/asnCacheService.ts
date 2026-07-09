@@ -11,7 +11,6 @@
 import { prisma } from "../db.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import type { AsnResponse } from "../schemas/asn.schema.js";
-import { Option } from "oxide.ts";
 import { lookupAsn, type AsnLookupResult } from "./asnService.js";
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
@@ -47,10 +46,6 @@ const rowSelect = {
     createdAt: true,
 } as const satisfies Prisma.ASNLookupSelect;
 
-function userIdField(userId: number | undefined): object {
-    return Option.from(userId).mapOr<object>({}, (id) => ({ userId: id }));
-}
-
 /**
  * Creates a new `ASNLookup` row copied from an existing cached row, marked
  * `isCached: true`, so the per-user history timeline stays complete.
@@ -58,7 +53,7 @@ function userIdField(userId: number | undefined): object {
 async function createCachedCopy(
     ip: string,
     cached: AsnRow,
-    userId: number | undefined,
+    userId: number,
 ): Promise<AsnRow> {
     return prisma.aSNLookup.create({
         data: {
@@ -67,7 +62,7 @@ async function createCachedCopy(
             asName: cached.asName,
             prefix: cached.prefix,
             isCached: true,
-            ...userIdField(userId),
+            userId,
         },
         select: rowSelect,
     });
@@ -79,7 +74,7 @@ async function createCachedCopy(
 async function persistFreshResult(
     ip: string,
     result: AsnLookupResult,
-    userId: number | undefined,
+    userId: number,
 ): Promise<AsnRow> {
     return prisma.aSNLookup.create({
         data: {
@@ -88,7 +83,7 @@ async function persistFreshResult(
             asName: result.asName.mapOr<string | null>(null, (v) => v),
             prefix: result.prefix.mapOr<string | null>(null, (v) => v),
             isCached: false,
-            ...userIdField(userId),
+            userId,
         },
         select: rowSelect,
     });
@@ -106,7 +101,7 @@ async function persistFreshResult(
  */
 export async function performAsnLookup(
     ip: string,
-    userId: number | undefined,
+    userId: number,
 ): Promise<AsnResponse> {
     const cacheThreshold = new Date(Date.now() - CACHE_TTL_MS);
 

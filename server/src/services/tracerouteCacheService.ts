@@ -8,7 +8,6 @@
  * @author Ozan Malcı
  */
 import { prisma } from "../db.js";
-import { Option } from "oxide.ts";
 import { runTraceroute, type TracerouteResult } from "./tracerouteService.js";
 import type { TracerouteResponse } from "../schemas/traceroute.schema.js";
 import type { Prisma } from "../generated/prisma/client.js";
@@ -48,16 +47,14 @@ function toTracerouteResponse(row: TracerouteWithHops): TracerouteResponse {
 async function createCachedCopy(
     domain: string,
     cached: TracerouteWithHops,
-    userId: number | undefined,
+    userId: number,
 ): Promise<TracerouteWithHops> {
     return prisma.traceroute.create({
         data: {
             domain,
             destinationIp: cached.destinationIp,
             isCached: true,
-            ...Option.from(userId).mapOr<object>({}, (id) => ({
-                userId: id,
-            })),
+            userId,
             hops: {
                 create: cached.hops.map((hop) => ({
                     hopNumber: hop.hopNumber,
@@ -81,7 +78,7 @@ async function createCachedCopy(
 async function persistFreshResult(
     domain: string,
     result: TracerouteResult,
-    userId: number | undefined,
+    userId: number,
 ): Promise<TracerouteWithHops> {
     return prisma.traceroute.create({
         data: {
@@ -91,9 +88,7 @@ async function persistFreshResult(
                 (ip) => ip,
             ),
             isCached: false,
-            ...Option.from(userId).mapOr<object>({}, (id) => ({
-                userId: id,
-            })),
+            userId,
             hops: {
                 create: result.hops.map((hop) => ({
                     hopNumber: hop.hopNumber,
@@ -118,7 +113,7 @@ async function persistFreshResult(
  */
 export async function performTraceroute(
     domain: string,
-    userId: number | undefined,
+    userId: number,
 ): Promise<TracerouteResponse> {
     const cacheThreshold = new Date(Date.now() - CACHE_TTL_MS);
 

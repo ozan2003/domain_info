@@ -5,13 +5,9 @@
  * @author Ozan Malcı
  */
 import type { Context } from "hono";
-import { HTTPException } from "hono/http-exception";
-import { Option } from "oxide.ts";
-import {
-    lookupQuerySchema,
-    type LookupResponse,
-} from "../schemas/lookup.schema.js";
+import { lookupQuerySchema } from "../schemas/lookup.schema.js";
 import { performLookup } from "../services/lookupService.js";
+import { parseQuery } from "../lib/validate.js";
 import type { AppEnv } from "../types/app.js";
 
 /**
@@ -21,20 +17,7 @@ import type { AppEnv } from "../types/app.js";
  * @returns A JSON response containing the DNS records.
  */
 export async function lookupHandler(ctx: Context<AppEnv>): Promise<Response> {
-    const parsedQuery = lookupQuerySchema.safeParse(ctx.req.query());
-
-    if (!parsedQuery.success) {
-        throw new HTTPException(400, {
-            message: Option.from(parsedQuery.error.issues[0]?.message).unwrapOr(
-                "Invalid domain query",
-            ),
-        });
-    }
-
-    const authUser = ctx.get("authUser");
-    const result = (await performLookup(
-        parsedQuery.data.domain,
-        authUser.userId,
-    )) satisfies LookupResponse;
-    return ctx.json(result);
+    const { domain } = parseQuery(ctx, lookupQuerySchema);
+    const { userId } = ctx.get("authUser");
+    return ctx.json(await performLookup(domain, userId));
 }

@@ -53,7 +53,7 @@ function toWhoisResponse(row: WhoisWithRow): WhoisResponse {
 async function createCachedCopy(
     domain: string,
     cached: WhoisWithRow,
-    userId: number | undefined,
+    userId: number,
 ): Promise<WhoisWithRow> {
     return prisma.whois.create({
         data: {
@@ -64,9 +64,7 @@ async function createCachedCopy(
             expirationDate: cached.expirationDate,
             nameServers: cached.nameServers,
             isCached: true,
-            ...Option.from(userId).mapOr<object>({}, (id) => ({
-                userId: id,
-            })),
+            userId,
         },
         select: {
             domain: true,
@@ -84,7 +82,7 @@ async function createCachedCopy(
 async function persistFreshResult(
     domain: string,
     result: WhoisLookupResult,
-    userId: number | undefined,
+    userId: number,
 ): Promise<WhoisWithRow> {
     return prisma.whois.create({
         data: {
@@ -101,9 +99,7 @@ async function persistFreshResult(
             ),
             nameServers: result.nameServers.join("\n"),
             isCached: false,
-            ...Option.from(userId).mapOr<object>({}, (id) => ({
-                userId: id,
-            })),
+            userId,
         },
         select: {
             domain: true,
@@ -127,7 +123,7 @@ async function persistFreshResult(
  */
 export async function performWhoisLookup(
     domain: string,
-    userId: number | undefined,
+    userId: number,
 ): Promise<WhoisResponse> {
     const cacheThreshold = new Date(Date.now() - CACHE_TTL_MS);
 

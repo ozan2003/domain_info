@@ -5,11 +5,10 @@
  * @author Ozan Malcı
  */
 import type { Context } from "hono";
-import { HTTPException } from "hono/http-exception";
 import { setCookie, deleteCookie } from "hono/cookie";
-import { Option } from "oxide.ts";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
 import { registerUser, loginUser, signToken } from "../services/authService.js";
+import { parseJson } from "../lib/validate.js";
 import type { AppEnv } from "../types/app.js";
 
 const COOKIE_OPTIONS = {
@@ -46,18 +45,7 @@ function clearAuthCookie(ctx: Context): void {
  * @returns JSON response with the new user.
  */
 export async function registerHandler(ctx: Context): Promise<Response> {
-    const body: unknown = await ctx.req.json();
-    const parsed = registerSchema.safeParse(body);
-
-    if (!parsed.success) {
-        throw new HTTPException(400, {
-            message: Option.from(parsed.error.issues[0]?.message).unwrapOr(
-                "invalid input",
-            ),
-        });
-    }
-
-    const { email, password } = parsed.data;
+    const { email, password } = await parseJson(ctx, registerSchema);
     const user = await registerUser(email, password);
     const token = await signToken(user.userId, user.email);
     setAuthCookie(ctx, token);
@@ -71,18 +59,7 @@ export async function registerHandler(ctx: Context): Promise<Response> {
  * @returns JSON response with the authenticated user.
  */
 export async function loginHandler(ctx: Context): Promise<Response> {
-    const body: unknown = await ctx.req.json();
-    const parsed = loginSchema.safeParse(body);
-
-    if (!parsed.success) {
-        throw new HTTPException(400, {
-            message: Option.from(parsed.error.issues[0]?.message).unwrapOr(
-                "invalid input",
-            ),
-        });
-    }
-
-    const { email, password } = parsed.data;
+    const { email, password } = await parseJson(ctx, loginSchema);
     const user = await loginUser(email, password);
     const token = await signToken(user.userId, user.email);
     setAuthCookie(ctx, token);
@@ -95,7 +72,7 @@ export async function loginHandler(ctx: Context): Promise<Response> {
  * @param ctx The Hono context.
  * @returns JSON response confirming logout.
  */
-export function logoutHandler(ctx: Context): Response {
+export function logoutHandler(ctx: Context<AppEnv>): Response {
     clearAuthCookie(ctx);
     return ctx.json({ message: "logged out" });
 }

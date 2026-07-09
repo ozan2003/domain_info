@@ -5,13 +5,9 @@
  * @author Ozan Malcı
  */
 import type { Context } from "hono";
-import { HTTPException } from "hono/http-exception";
-import { Option } from "oxide.ts";
-import {
-    asnQuerySchema,
-    type AsnResponse,
-} from "../schemas/asn.schema.js";
+import { asnQuerySchema } from "../schemas/asn.schema.js";
 import { performAsnLookup } from "../services/asnCacheService.js";
+import { parseQuery } from "../lib/validate.js";
 import type { AppEnv } from "../types/app.js";
 
 /**
@@ -22,21 +18,7 @@ import type { AppEnv } from "../types/app.js";
  * @returns A JSON response containing ASN data for the requested IP.
  */
 export async function asnHandler(ctx: Context<AppEnv>): Promise<Response> {
-    const parsedQuery = asnQuerySchema.safeParse(ctx.req.query());
-
-    if (!parsedQuery.success) {
-        throw new HTTPException(400, {
-            message: Option.from(parsedQuery.error.issues[0]?.message).unwrapOr(
-                "Invalid ip query",
-            ),
-        });
-    }
-
-    const authUser = ctx.get("authUser");
-    const result = (await performAsnLookup(
-        parsedQuery.data.ip,
-        authUser.userId,
-    )) satisfies AsnResponse;
-
-    return ctx.json(result);
+    const { ip } = parseQuery(ctx, asnQuerySchema);
+    const { userId } = ctx.get("authUser");
+    return ctx.json(await performAsnLookup(ip, userId));
 }
