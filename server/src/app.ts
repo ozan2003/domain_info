@@ -13,6 +13,8 @@ import { lookupHandler } from "./routes/lookup.js";
 import { tracerouteHandler } from "./routes/traceroute.js";
 import { whoisHandler } from "./routes/whois.js";
 import { asnHandler } from "./routes/asn.js";
+import { historyHandler } from "./routes/history.js";
+import { statsHandler } from "./routes/stats.js";
 import {
     registerHandler,
     loginHandler,
@@ -37,19 +39,12 @@ app.post("/api/auth/logout", requireAuth, logoutHandler);
 app.get("/api/auth/me", requireAuth, meHandler);
 
 // API — protected
-app.get("/api/lookup", requireAuth, lookupHandler);
-app.get("/api/traceroute", requireAuth, tracerouteHandler);
-app.get("/api/whois", requireAuth, whoisHandler);
-app.get("/api/asn", requireAuth, asnHandler);
-
-// History
-app.get("/api/history", requireAuth, () => {
-    throw new Error("TODO");
-});
-// Statistics
-app.get("/api/stats", requireAuth, () => {
-    throw new Error("TODO");
-});
+app.get("/api/lookup", requireAuth, lookupHandler); // Usage: /api/lookup?target=example.com
+app.get("/api/traceroute", requireAuth, tracerouteHandler); // Usage: /api/traceroute?target=example.com
+app.get("/api/whois", requireAuth, whoisHandler); // Usage: /api/whois?domain=example.com
+app.get("/api/asn", requireAuth, asnHandler); // Usage: /api/asn?ip=1.1.1.1
+app.get("/api/history", requireAuth, historyHandler); // Usage: /api/history
+app.get("/api/stats", requireAuth, statsHandler); // Usage: /api/stats
 
 app.onError((error, ctx) => {
     if (error instanceof HTTPException) {
