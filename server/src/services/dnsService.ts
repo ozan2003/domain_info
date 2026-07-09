@@ -38,6 +38,7 @@ async function resolveOptional<T>(
  * Records included are:
  *
  * - A (IPv4 addresses)
+ * - AAAA (IPv6 addresses)
  * - MX (Mail Exchange records)
  * - NS (Name Server records)
  * - TXT (Text records)

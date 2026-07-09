@@ -53,7 +53,7 @@ export async function signToken(
     userId: number,
     email: string,
 ): Promise<string> {
-    const now = Math.floor(Date.now() / 1000);
+    const now = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
     return sign(
         {
             userId,

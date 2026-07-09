@@ -7,7 +7,7 @@
 import { prisma } from "../db.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import type { WhoisResponse } from "../schemas/whois.schema.js";
-import { Option } from "oxide.ts";
+import { match, Option } from "oxide.ts";
 import { lookupWhois, type WhoisLookupResult } from "./whoisService.js";
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
@@ -25,15 +25,16 @@ type WhoisWithRow = Prisma.WhoisGetPayload<{
     };
 }>;
 
-function splitNameServers(nameServers: string | null): string[] {
-    if (!nameServers) {
-        return [];
-    }
-
-    return nameServers
-        .split(/\r?\n/)
-        .map((nameServer) => nameServer.trim())
-        .filter(Boolean);
+function splitNameServers(nameServers: Option<string>): string[] {
+    return match(nameServers, {
+        Some: (nameServers) => {
+            return nameServers
+                .split(/\r?\n/)
+                .map((nameServer) => nameServer.trim())
+                .filter(Boolean);
+        },
+        None: () => [],
+    });
 }
 
 function toWhoisResponse(row: WhoisWithRow): WhoisResponse {
@@ -42,7 +43,7 @@ function toWhoisResponse(row: WhoisWithRow): WhoisResponse {
         registrar: row.registrar,
         creationDate: row.creationDate,
         expirationDate: row.expirationDate,
-        nameServers: splitNameServers(row.nameServers),
+        nameServers: splitNameServers(Option.from(row.nameServers)),
         rawData: row.rawData,
         isCached: row.isCached,
         createdAt: row.createdAt.toISOString(),

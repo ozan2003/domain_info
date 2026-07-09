@@ -46,7 +46,6 @@ function parseRtt(rtt1: string): Option<number> {
 /**
  * Runs a traceroute to the given domain.
  *
- * Wraps the event-based `nodejs-traceroute` API in a Promise:
  * - Collects hops from the `hop` event, parsing `rtt1` via `parseRtt`.
  * - Captures the resolved destination IP from the `destination` event.
  * - Enforces a 60-second timeout via `process.kill(pid)`.
@@ -58,43 +57,46 @@ function parseRtt(rtt1: string): Option<number> {
 export async function runTraceroute(domain: string): Promise<TracerouteResult> {
     return new Promise((resolve, reject) => {
         const tracer = new Traceroute();
+
         let destinationIp: Option<string> = None;
         const hops: TracerouteHop[] = [];
-        let killTimer: ReturnType<typeof setTimeout> | null = null;
-        let settled = false;
+        let killTimer: Option<ReturnType<typeof setTimeout>> = None;
+        let isSettled = false;
 
         function finish(result: TracerouteResult): void {
-            if (settled) {
+            if (isSettled) {
                 return;
             }
-            settled = true;
-            if (killTimer) {
-                clearTimeout(killTimer);
+            isSettled = true;
+            if (killTimer.isSome()) {
+                clearTimeout(killTimer.unwrap());
             }
             resolve(result);
         }
 
         function fail(error: Error): void {
-            if (settled) {
+            if (isSettled) {
                 return;
             }
-            settled = true;
-            if (killTimer) {
-                clearTimeout(killTimer);
+            isSettled = true;
+            if (killTimer.isSome()) {
+                clearTimeout(killTimer.unwrap());
             }
             reject(error);
         }
 
         tracer.on("pid", (pid: number) => {
-            killTimer = setTimeout(() => {
-                try {
-                    process.kill(pid, "SIGTERM");
-                } catch {
-                    // The child process may have already exited or the signal
-                    // is not supported on this platform (e.g. Windows).
-                }
-                finish({ destinationIp, hops });
-            }, TRACEROUTE_TIMEOUT_MS);
+            killTimer = Some(
+                setTimeout(() => {
+                    try {
+                        process.kill(pid, "SIGTERM");
+                    } catch {
+                        // The child process may have already exited or the signal
+                        // is not supported on this platform (e.g. Windows).
+                    }
+                    finish({ destinationIp, hops });
+                }, TRACEROUTE_TIMEOUT_MS),
+            );
         });
 
         tracer.on("destination", (dest: string) => {
