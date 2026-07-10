@@ -40,8 +40,8 @@ app.post("/api/auth/logout", requireAuth, logoutHandler);
 app.get("/api/auth/me", requireAuth, meHandler);
 
 // API — protected
-app.get("/api/lookup", requireAuth, lookupHandler); // Usage: /api/lookup?target=example.com
-app.get("/api/traceroute", requireAuth, tracerouteHandler); // Usage: /api/traceroute?target=example.com
+app.get("/api/lookup", requireAuth, lookupHandler); // Usage: /api/lookup?domain=example.com
+app.get("/api/traceroute", requireAuth, tracerouteHandler); // Usage: /api/traceroute?domain=example.com
 app.get("/api/whois", requireAuth, whoisHandler); // Usage: /api/whois?domain=example.com
 app.get("/api/asn", requireAuth, asnHandler); // Usage: /api/asn?ip=1.1.1.1
 app.get("/api/ptr", requireAuth, ptrHandler); // Usage: /api/ptr?ip=1.1.1.1
@@ -55,6 +55,13 @@ app.onError((error, ctx) => {
 
     console.error(error);
     return ctx.json({ error: "Internal Server Error" }, 500);
+});
+
+app.notFound((ctx) => {
+    return ctx.json(
+        { error: "Not Found", path: ctx.req.path, method: ctx.req.method },
+        404,
+    );
 });
 
 export { app };
