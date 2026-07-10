@@ -1,20 +1,25 @@
 /**
  * @file stats.ts
- * @fileoverview Placeholder route for lookup statistics. Returns 501 until
- * statsService.ts is implemented.
+ * @fileoverview Route handler for the per-user statistics endpoint. Returns
+ * all-time aggregate stats across DNS, traceroute, WHOIS, and ASN lookups
+ * for the authenticated user.
  *
  * @author Ozan Malcı
  */
-import { HTTPException } from "hono/http-exception";
 import type { Context } from "hono";
+import { getStats } from "../services/statsService.js";
 import type { AppEnv } from "../types/app.js";
 
 /**
- * Handles GET /api/stats requests. Not yet implemented.
+ * Handles GET /api/stats requests.
  *
- * @param _ctx The Hono context.
- * @returns Never resolves normally; always throws 501.
+ * Pulls the authenticated `userId` from the Hono context and delegates to
+ * `getStats`.
+ *
+ * @param ctx The Hono context.
+ * @returns A JSON response containing the aggregated stats.
  */
-export function statsHandler(_ctx: Context<AppEnv>): never {
-    throw new HTTPException(501, { message: "Not implemented" });
+export async function statsHandler(ctx: Context<AppEnv>): Promise<Response> {
+    const { userId } = ctx.get("authUser");
+    return ctx.json(await getStats(userId));
 }

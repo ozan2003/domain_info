@@ -54,6 +54,7 @@ async function createCachedCopy(
             domain,
             destinationIp: cached.destinationIp,
             isCached: true,
+            hopCount: cached.hops.length,
             userId,
             hops: {
                 create: cached.hops.map((hop) => ({
@@ -88,6 +89,7 @@ async function persistFreshResult(
                 (ip) => ip,
             ),
             isCached: false,
+            hopCount: result.hops.length,
             userId,
             hops: {
                 create: result.hops.map((hop) => ({

@@ -33,8 +33,8 @@ model Lookup {
     isCached  Boolean  @default(false) @map("cached")
     createdAt DateTime @default(now())
 
-    userId Int?
-    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     aRecords     ARecord[]
     mxRecords    MXRecord[]
@@ -42,6 +42,9 @@ model Lookup {
     txtRecords   TXTRecord[]
     cnameRecords CNAMERecord[]
     aaaaRecords  AAAARecord[]
+
+    @@index([userId, createdAt])
+    @@index([domain, createdAt])
 }
 
 model ARecord {
@@ -94,12 +97,16 @@ model Traceroute {
     domain        String
     destinationIp String?
     isCached      Boolean  @default(false) @map("cached")
+    hopCount      Int      @default(0)
     createdAt     DateTime @default(now())
 
-    userId Int?
-    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     hops Hop[]
+
+    @@index([userId, createdAt])
+    @@index([domain, createdAt])
 }
 
 model Hop {
@@ -125,8 +132,11 @@ model Whois {
     isCached       Boolean  @default(false) @map("cached")
     createdAt      DateTime @default(now())
 
-    userId Int?
-    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId, createdAt])
+    @@index([domain, createdAt])
 }
 
 // ─── ASN ─────────────────────────────────────────────────────────────────────
@@ -140,6 +150,9 @@ model ASNLookup {
     isCached  Boolean  @default(false) @map("cached")
     createdAt DateTime @default(now())
 
-    userId Int?
-    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId, createdAt])
+    @@index([ip, createdAt])
 }

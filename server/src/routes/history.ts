@@ -1,20 +1,29 @@
 /**
  * @file history.ts
- * @fileoverview Placeholder route for lookup history. Returns 501 until
- * historyService.ts is implemented.
+ * @fileoverview Route handler for the lookup history endpoint. Returns a
+ * flat, paginated timeline of all lookup types (DNS, traceroute, WHOIS, ASN)
+ * for the authenticated user, sorted by `createdAt` desc.
  *
  * @author Ozan Malcı
  */
-import { HTTPException } from "hono/http-exception";
 import type { Context } from "hono";
+import { historyQuerySchema } from "../schemas/history.schema.js";
+import { getHistory } from "../services/historyService.js";
+import { parseQuery } from "../lib/validate.js";
 import type { AppEnv } from "../types/app.js";
 
 /**
- * Handles GET /api/history requests. Not yet implemented.
+ * Handles GET /api/history requests.
  *
- * @param _ctx The Hono context.
- * @returns Never resolves normally; always throws 501.
+ * Validates the `page` and `pageSize` query parameters, pulls the
+ * authenticated `userId` from the Hono context, and delegates to
+ * `getHistory`.
+ *
+ * @param ctx The Hono context.
+ * @returns A JSON response containing the paginated history timeline.
  */
-export function historyHandler(_ctx: Context<AppEnv>): never {
-    throw new HTTPException(501, { message: "Not implemented" });
+export async function historyHandler(ctx: Context<AppEnv>): Promise<Response> {
+    const { page, pageSize } = parseQuery(ctx, historyQuerySchema);
+    const { userId } = ctx.get("authUser");
+    return ctx.json(await getHistory(userId, page, pageSize));
 }
