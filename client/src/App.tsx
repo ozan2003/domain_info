@@ -1,65 +1,57 @@
 /**
  * @file App.tsx
- * @fileoverview Root application component. Orchestrates the lookup form, loading state, and results display.
+ * @fileoverview Root application component. Renders the auth gate
+ * (loading spinner, sign-in/register card, or authenticated view).
  *
  * @author Ozan Malcı
  */
-import { useState } from "react";
-import { lookupDomain } from "./api";
-import type { LookupResponse } from "./types";
-import { type Option, Some, None, match } from "oxide.ts";
-import { LookupForm } from "./components/LookupForm";
+import { match } from "oxide.ts";
+import { AuthPanel } from "./components/AuthPanel";
+import { LookupView } from "./components/LookupView";
 import { Spinner } from "./components/Spinner";
-import { ErrorMessage } from "./components/ErrorMessage";
-import { ResultsPanel } from "./components/ResultsPanel";
+import { useAuth } from "./context/auth";
 import "./App.css";
 
-/** Root application component that orchestrates the domain lookup workflow. */
+/** Root application component that orchestrates the auth gate. */
 export default function App() {
-    const [result, setResult] = useState<Option<LookupResponse>>(None);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<Option<string>>(None);
-
-    async function handleLookup(domain: string) {
-        setIsLoading(true);
-        setResult(None);
-        setError(None);
-
-        match(await lookupDomain(domain), {
-            Ok: (data) => {
-                setResult(Some(data));
-            },
-            Err: (msg) => {
-                setError(Some(msg));
-            },
-        });
-
-        setIsLoading(false);
-    }
+    const { isLoading, user, logout } = useAuth();
 
     return (
         <div className="app">
             <header className="app__header">
-                <h1 className="app__title">Domain Info</h1>
-                <p className="app__subtitle">
-                    Look up DNS records and inspect domain configuration.
-                </p>
+                <div className="app__header-text">
+                    <h1 className="app__title">Domain Info</h1>
+                    <p className="app__subtitle">
+                        Look up DNS records and inspect domain configuration.
+                    </p>
+                </div>
+                {match(user, {
+                    Some: (authenticatedUser) => (
+                        <div className="app__user">
+                            <span className="app__user-email">
+                                {authenticatedUser.email}
+                            </span>
+                            <button
+                                type="button"
+                                className="app__user-button"
+                                onClick={() => {
+                                    void logout();
+                                }}
+                            >
+                                Sign out
+                            </button>
+                        </div>
+                    ),
+                    None: () => null,
+                })}
             </header>
 
-            <LookupForm
-                onSubmit={(domain) => void handleLookup(domain)}
-                isLoading={isLoading}
-            />
-
             {isLoading && <Spinner />}
-            {match(error, {
-                Some: (msg) => <ErrorMessage message={msg} />,
-                None: () => null,
-            })}
-            {match(result, {
-                Some: (data) => <ResultsPanel data={data} />,
-                None: () => null,
-            })}
+            {!isLoading &&
+                match(user, {
+                    None: () => <AuthPanel />,
+                    Some: () => <LookupView />,
+                })}
         </div>
     );
 }

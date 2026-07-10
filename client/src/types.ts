@@ -22,3 +22,8 @@ export interface LookupResponse {
     txt: string[];
     cname: string[];
 }
+
+export interface AuthUser {
+    userId: number;
+    email: string;
+}

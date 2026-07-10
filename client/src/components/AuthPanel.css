@@ -1,0 +1,45 @@
+/* Styles for the centered auth card. Reuses input/button classes from
+   LookupForm.css and tab classes from App.css. */
+
+.auth-panel {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.auth-panel__card {
+    width: 100%;
+    max-width: 380px;
+    padding: 24px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.auth-panel__tabs {
+    margin-bottom: 20px;
+}
+
+.auth-panel__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.auth-panel__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.auth-panel__field-label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.auth-panel__submit {
+    margin-top: 4px;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+}

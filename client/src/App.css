@@ -1,0 +1,105 @@
+/* App-level layout: header, tabs, and tab panel container. */
+
+.app {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+}
+
+.app__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.app__header-text {
+    min-width: 0;
+}
+
+.app__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+}
+
+.app__subtitle {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.app__user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    padding-top: 4px;
+}
+
+.app__user-email {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app__user-button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition:
+        color var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.app__user-button:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+    border-color: var(--color-border);
+}
+
+.app__tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 24px;
+}
+
+.app__tab {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    transition:
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.app__tab:hover {
+    color: var(--color-text);
+}
+
+.app__tab--active {
+    color: var(--color-text);
+    border-bottom-color: var(--color-accent);
+}
+
+.app__tab-panel {
+    display: block;
+}

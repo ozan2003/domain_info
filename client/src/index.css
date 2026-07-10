@@ -1,0 +1,42 @@
+/* Global styles. Imported once from main.tsx. */
+
+:root {
+    --color-bg: #0d1117;
+    --color-surface: #161b22;
+    --color-surface-hover: #1f242c;
+    --color-border: #30363d;
+    --color-border-subtle: #21262d;
+    --color-text: #e6edf3;
+    --color-text-secondary: #c9d1d9;
+    --color-text-muted: #8b949e;
+    --color-accent: #2f81f7;
+    --color-accent-hover: #4493f8;
+    --color-error: #ff7b72;
+    --color-error-bg: rgba(255, 123, 114, 0.08);
+
+    --radius-md: 6px;
+    --transition-fast: 120ms ease;
+    --transition-normal: 200ms ease;
+
+    --font-sans: sans-serif;
+    --font-mono: monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+#root {
+    min-height: 100vh;
+}

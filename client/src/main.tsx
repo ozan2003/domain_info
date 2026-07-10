@@ -8,6 +8,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Option } from "oxide.ts";
 import App from "./App";
+import { AuthProvider } from "./context/AuthProvider";
 import "./index.css";
 
 const rootElement = Option.from(document.getElementById("root")).expect(
@@ -17,6 +18,8 @@ const root = createRoot(rootElement);
 
 root.render(
     <StrictMode>
-        <App />
+        <AuthProvider>
+            <App />
+        </AuthProvider>
     </StrictMode>,
 );
