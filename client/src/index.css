@@ -40,3 +40,10 @@ body {
 #root {
     min-height: 100vh;
 }
+
+/* The HTML `hidden` attribute has lower specificity than class-based
+   display rules (e.g. `.history-panel { display: flex }`). Force it
+   to win so the `hidden` prop on a component actually hides it. */
+[hidden] {
+    display: none !important;
+}

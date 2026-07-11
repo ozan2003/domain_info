@@ -7,13 +7,13 @@ history timeline.
 
 ## Features
 
-- **DNS records** — A, AAAA, MX (with priority), NS, TXT, CNAME, and PTR
+- **DNS records** - A, AAAA, MX (with priority), NS, TXT, CNAME, and PTR
 - **Traceroute** — full network path trace with per-hop IP and RTT, 60s timeout
 - **WHOIS** — registrar, creation/expiration dates, name servers, raw output
 - **ASN** — IP-to-AS mapping via Team Cymru DNS (IPv4 + IPv6)
 - **User auth** — register / login / logout with argon2-hashed passwords and
   JWT in httpOnly cookies (7-day expiry)
-- **1-hour cache** — every lookup type is cached in SQLite; cache hits create
+- **1-hour cache** — every lookup type is cached in SQLite, cache hits create
   history entries flagged `isCached`
 - **History** — flat, paginated timeline across all lookup types, scoped per
   user

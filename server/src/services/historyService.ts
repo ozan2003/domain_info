@@ -17,6 +17,7 @@
  *
  * @author Ozan Malcı
  */
+import { HTTPException } from "hono/http-exception";
 import { prisma } from "../db.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import type {
@@ -27,6 +28,10 @@ import type {
     TracerouteHistoryItem,
     WhoisHistoryItem,
 } from "../schemas/history.schema.js";
+import type { LookupResponse } from "../schemas/lookup.schema.js";
+import type { TracerouteResponse } from "../schemas/traceroute.schema.js";
+import type { WhoisResponse } from "../schemas/whois.schema.js";
+import type { AsnResponse } from "../schemas/asn.schema.js";
 
 /**
  * Projects a `Lookup` row (with record counts) into a DNS history item.
@@ -214,4 +219,138 @@ export async function getHistory(
         pageSize,
         hasMore,
     };
+}
+
+const VALID_KINDS = new Set(["dns", "traceroute", "whois", "asn"]);
+
+export type HistoryDetail =
+    | LookupResponse
+    | TracerouteResponse
+    | WhoisResponse
+    | AsnResponse;
+
+/**
+ * Fetches the full detail for a single history item by kind and ID.
+ *
+ * Scoped to the authenticated user so users cannot view each other's data.
+ * Throws HTTPException(400) for invalid kinds and HTTPException(404) when
+ * the record does not exist or belongs to a different user.
+ *
+ * @param kind The lookup kind ("dns" | "traceroute" | "whois" | "asn").
+ * @param id The database row ID.
+ * @param userId The authenticated user's database ID.
+ * @returns The full response shape for the requested history item.
+ */
+export async function getHistoryDetail(
+    kind: string,
+    id: number,
+    userId: number,
+): Promise<HistoryDetail> {
+    if (!VALID_KINDS.has(kind)) {
+        throw new HTTPException(400, { message: `Invalid kind: ${kind}` });
+    }
+
+    switch (kind) {
+        case "dns": {
+            const row = await prisma.lookup.findUnique({
+                where: { id, userId },
+                include: {
+                    aRecords: true,
+                    aaaaRecords: true,
+                    mxRecords: true,
+                    nsRecords: true,
+                    txtRecords: true,
+                    cnameRecords: true,
+                },
+            });
+            if (!row) {
+                throw new HTTPException(404, {
+                    message: "History item not found",
+                });
+            }
+            return {
+                domain: row.domain,
+                isCached: row.isCached,
+                createdAt: row.createdAt.toISOString(),
+                a: row.aRecords.map((a) => a.address),
+                aaaa: row.aaaaRecords.map((aaaa) => aaaa.address),
+                mx: row.mxRecords.map((mx) => ({
+                    exchange: mx.exchange,
+                    priority: mx.priority,
+                })),
+                ns: row.nsRecords.map((ns) => ns.nameserver),
+                txt: row.txtRecords.map((txt) => txt.value),
+                cname: row.cnameRecords.map((cname) => cname.value),
+            };
+        }
+        case "traceroute": {
+            const row = await prisma.traceroute.findUnique({
+                where: { id, userId },
+                include: { hops: true },
+            });
+            if (!row) {
+                throw new HTTPException(404, {
+                    message: "History item not found",
+                });
+            }
+            return {
+                domain: row.domain,
+                destinationIp: row.destinationIp,
+                isCached: row.isCached,
+                createdAt: row.createdAt.toISOString(),
+                hops: row.hops.map((hop) => ({
+                    hopNumber: hop.hopNumber,
+                    ip: hop.ip,
+                    rtt1: hop.rtt1,
+                })),
+            };
+        }
+        case "whois": {
+            const row = await prisma.whois.findUnique({
+                where: { id, userId },
+            });
+            if (!row) {
+                throw new HTTPException(404, {
+                    message: "History item not found",
+                });
+            }
+            return {
+                domain: row.domain,
+                registrar: row.registrar,
+                creationDate: row.creationDate,
+                expirationDate: row.expirationDate,
+                nameServers: row.nameServers
+                    ? row.nameServers
+                          .split(/\r?\n/)
+                          .map((s) => s.trim())
+                          .filter(Boolean)
+                    : [],
+                rawData: row.rawData,
+                isCached: row.isCached,
+                createdAt: row.createdAt.toISOString(),
+            };
+        }
+        case "asn": {
+            const row = await prisma.aSNLookup.findUnique({
+                where: { id, userId },
+            });
+            if (!row) {
+                throw new HTTPException(404, {
+                    message: "History item not found",
+                });
+            }
+            return {
+                ip: row.ip,
+                asNumber: row.asNumber,
+                asName: row.asName,
+                prefix: row.prefix,
+                isCached: row.isCached,
+                createdAt: row.createdAt.toISOString(),
+            };
+        }
+        default:
+            throw new HTTPException(400, {
+                message: `Invalid kind: ${kind}`,
+            });
+    }
 }

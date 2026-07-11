@@ -132,3 +132,9 @@
 .stats-top-domains {
     margin-bottom: 12px;
 }
+
+@media (max-width: 600px) {
+    .stats-totals {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

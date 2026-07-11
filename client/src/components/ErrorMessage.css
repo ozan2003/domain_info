@@ -1,5 +1,9 @@
 /* ErrorMessage component styles */
 .error-message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     margin-top: 28px;
     padding: 14px 16px;
     font-size: 0.875rem;
@@ -7,4 +11,27 @@
     background: var(--color-error-bg);
     border: 1px solid hsl(0, 65%, 55%, 0.2);
     border-radius: var(--radius-md);
+}
+
+.error-message__text {
+    flex: 1;
+}
+
+.error-message__retry {
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-error);
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.error-message__retry:hover {
+    color: var(--color-surface);
+    background: var(--color-error);
 }

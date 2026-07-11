@@ -7,8 +7,9 @@
  * @author Ozan Malcı
  */
 import type { Context } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { historyQuerySchema } from "../schemas/history.schema.js";
-import { getHistory } from "../services/historyService.js";
+import { getHistory, getHistoryDetail } from "../services/historyService.js";
 import { parseQuery } from "../lib/validate.js";
 import type { AppEnv } from "../types/app.js";
 
@@ -26,4 +27,32 @@ export async function historyHandler(ctx: Context<AppEnv>): Promise<Response> {
     const { page, pageSize } = parseQuery(ctx, historyQuerySchema);
     const { userId } = ctx.get("authUser");
     return ctx.json(await getHistory(userId, page, pageSize));
+}
+
+/**
+ * Handles GET /api/history/:kind/:id requests.
+ *
+ * Validates the kind and id path parameters, pulls the authenticated
+ * `userId` from the Hono context, and delegates to `getHistoryDetail`.
+ *
+ * @param ctx The Hono context.
+ * @returns A JSON response containing the full lookup detail.
+ */
+export async function historyDetailHandler(
+    ctx: Context<AppEnv>,
+): Promise<Response> {
+    const kind = ctx.req.param("kind");
+    const rawId = ctx.req.param("id");
+
+    if (!kind || !rawId) {
+        throw new HTTPException(400, { message: "Missing kind or id parameter" });
+    }
+    const { userId } = ctx.get("authUser");
+
+    const id = Number(rawId);
+    if (!Number.isInteger(id) || id <= 0) {
+        throw new HTTPException(400, { message: `Invalid id: ${rawId}` });
+    }
+
+    return ctx.json(await getHistoryDetail(kind, id, userId));
 }

@@ -7,6 +7,9 @@
 import type {
     AsnResponse,
     AuthUser,
+    DnsHistoryItem,
+    HistoryDetail,
+    HistoryItem,
     HistoryResponse,
     LookupResponse,
     PtrResponse,
@@ -25,13 +28,6 @@ interface StatsWireResponse {
     };
     cacheHitRatio: {
         dns: { total: number; cached: number; ratio: number };
-        /**
-         * Converts the raw JSON stats payload into the client-side `StatsResponse`
-         * shape by wrapping nullable fields in `Option` values.
-         *
-         * @param data The raw `/api/stats` response body.
-         * @returns The normalized stats response.
-         */
         traceroute: { total: number; cached: number; ratio: number };
         whois: { total: number; cached: number; ratio: number };
         asn: { total: number; cached: number; ratio: number };
@@ -212,8 +208,8 @@ export async function lookupTraceroute(
     if (!response.ok) {
         return Err(await readErrorMessage(response));
     }
-    const data = (await response.json()) as TracerouteResponse;
-    return Ok(data);
+    const raw = (await response.json()) as TracerouteWireResponse;
+    return Ok(mapTracerouteFromWire(raw));
 }
 
 /**
@@ -230,8 +226,8 @@ export async function lookupWhois(
     if (!response.ok) {
         return Err(await readErrorMessage(response));
     }
-    const data = (await response.json()) as WhoisResponse;
-    return Ok(data);
+    const raw = (await response.json()) as WhoisWireResponse;
+    return Ok(mapWhoisFromWire(raw));
 }
 
 /**
@@ -248,8 +244,8 @@ export async function lookupAsn(
     if (!response.ok) {
         return Err(await readErrorMessage(response));
     }
-    const data = (await response.json()) as AsnResponse;
-    return Ok(data);
+    const raw = (await response.json()) as AsnWireResponse;
+    return Ok(mapAsnFromWire(raw));
 }
 
 /**
@@ -275,22 +271,26 @@ export async function lookupPtr(
  *
  * @param page The 1-based page number to request.
  * @param pageSize Optional page size override.
+ * @param signal Optional `AbortSignal` to cancel the request.
  * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
  */
 export async function fetchHistory(
     page: number,
     pageSize?: number,
+    signal?: AbortSignal,
 ): Promise<Result<HistoryResponse, string>> {
     const params = new URLSearchParams({ page: String(page) });
     if (pageSize !== undefined) {
         params.set("pageSize", String(pageSize));
     }
-    const response = await fetch(`/api/history?${params.toString()}`);
+    const response = await fetch(`/api/history?${params.toString()}`, {
+        signal,
+    });
     if (!response.ok) {
         return Err(await readErrorMessage(response));
     }
-    const data = (await response.json()) as HistoryResponse;
-    return Ok(data);
+    const data = (await response.json()) as HistoryWireResponse;
+    return Ok(mapHistoryFromWire(data));
 }
 
 /**
@@ -299,13 +299,200 @@ export async function fetchHistory(
  * The raw API response uses `null` for missing values; this helper converts
  * those fields to `Option` so the UI can consume a consistent client shape.
  *
+ * @param signal Optional `AbortSignal` to cancel the request.
  * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
  */
-export async function fetchStats(): Promise<Result<StatsResponse, string>> {
-    const response = await fetch("/api/stats");
+export async function fetchStats(
+    signal?: AbortSignal,
+): Promise<Result<StatsResponse, string>> {
+    const response = await fetch("/api/stats", { signal });
     if (!response.ok) {
         return Err(await readErrorMessage(response));
     }
     const data = (await response.json()) as StatsWireResponse;
     return Ok(mapStatsResponse(data));
+}
+
+interface TracerouteWireResponse {
+    domain: string;
+    destinationIp: string | null;
+    isCached: boolean;
+    createdAt: string;
+    hops: { hopNumber: number; ip: string; rtt1: number | null }[];
+}
+
+interface WhoisWireResponse {
+    domain: string;
+    registrar: string | null;
+    creationDate: string | null;
+    expirationDate: string | null;
+    nameServers: string[];
+    rawData: string;
+    isCached: boolean;
+    createdAt: string;
+}
+
+interface AsnWireResponse {
+    ip: string;
+    asNumber: number | null;
+    asName: string | null;
+    prefix: string | null;
+    isCached: boolean;
+    createdAt: string;
+}
+
+function mapTracerouteFromWire(
+    raw: TracerouteWireResponse,
+): TracerouteResponse {
+    return {
+        ...raw,
+        destinationIp: Option.from(raw.destinationIp),
+    };
+}
+
+function mapWhoisFromWire(raw: WhoisWireResponse): WhoisResponse {
+    return {
+        ...raw,
+        registrar: Option.from(raw.registrar),
+        creationDate: Option.from(raw.creationDate),
+        expirationDate: Option.from(raw.expirationDate),
+    };
+}
+
+function mapAsnFromWire(raw: AsnWireResponse): AsnResponse {
+    return {
+        ...raw,
+        asNumber: Option.from(raw.asNumber),
+        asName: Option.from(raw.asName),
+        prefix: Option.from(raw.prefix),
+    };
+}
+
+interface TracerouteHistoryWireItem {
+    kind: "traceroute";
+    id: number;
+    domain: string;
+    destinationIp: string | null;
+    isCached: boolean;
+    hopCount: number;
+    createdAt: string;
+}
+
+interface WhoisHistoryWireItem {
+    kind: "whois";
+    id: number;
+    domain: string;
+    registrar: string | null;
+    isCached: boolean;
+    createdAt: string;
+}
+
+interface AsnHistoryWireItem {
+    kind: "asn";
+    id: number;
+    ip: string;
+    asNumber: number | null;
+    asName: string | null;
+    prefix: string | null;
+    isCached: boolean;
+    createdAt: string;
+}
+
+type HistoryWireItem =
+    | DnsHistoryItem
+    | TracerouteHistoryWireItem
+    | WhoisHistoryWireItem
+    | AsnHistoryWireItem;
+
+interface HistoryWireResponse {
+    items: HistoryWireItem[];
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+}
+
+function mapHistoryItemFromWire(item: HistoryWireItem): HistoryItem {
+    switch (item.kind) {
+        case "dns":
+            return item;
+        case "traceroute":
+            return {
+                ...item,
+                destinationIp: Option.from(item.destinationIp),
+            };
+        case "whois":
+            return {
+                ...item,
+                registrar: Option.from(item.registrar),
+            };
+        case "asn":
+            return {
+                ...item,
+                asNumber: Option.from(item.asNumber),
+                asName: Option.from(item.asName),
+                prefix: Option.from(item.prefix),
+            };
+        default: {
+            const _exhaustiveCheck: never = item;
+            throw new Error(`Unhandled history wire item: ${_exhaustiveCheck}`);
+        }
+    }
+}
+
+function mapHistoryFromWire(raw: HistoryWireResponse): HistoryResponse {
+    return {
+        ...raw,
+        items: raw.items.map(mapHistoryItemFromWire),
+    };
+}
+
+/**
+ * Fetches the full detail for a single history item.
+ *
+ * The raw API response uses `null` for missing values; this helper converts
+ * those fields to `Option` so the UI receives a consistent shape.
+ *
+ * @param kind The lookup kind ("dns" | "traceroute" | "whois" | "asn").
+ * @param id The database row ID of the history item.
+ * @param signal Optional `AbortSignal` to cancel the request.
+ * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
+ */
+export async function fetchHistoryDetail(
+    kind: HistoryItem["kind"],
+    id: number,
+    signal?: AbortSignal,
+): Promise<Result<HistoryDetail, string>> {
+    const response = await fetch(`/api/history/${kind}/${String(id)}`, {
+        signal,
+    });
+    if (!response.ok) {
+        return Err(await readErrorMessage(response));
+    }
+    switch (kind) {
+        case "dns": {
+            const data = (await response.json()) as LookupResponse;
+            return Ok({ kind: "dns", data });
+        }
+        case "traceroute": {
+            const raw = (await response.json()) as TracerouteWireResponse;
+            return Ok({
+                kind: "traceroute",
+                data: mapTracerouteFromWire(raw),
+            });
+        }
+        case "whois": {
+            const raw = (await response.json()) as WhoisWireResponse;
+            return Ok({ kind: "whois", data: mapWhoisFromWire(raw) });
+        }
+        case "asn": {
+            const raw = (await response.json()) as AsnWireResponse;
+            return Ok({ kind: "asn", data: mapAsnFromWire(raw) });
+        }
+        default: {
+            const _exhaustiveCheck: never = kind;
+            throw new Error(
+                `Unhandled history kind: ${String(_exhaustiveCheck)}`,
+            );
+        }
+    }
 }

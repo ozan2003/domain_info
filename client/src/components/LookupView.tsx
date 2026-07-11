@@ -26,7 +26,9 @@ import type {
 } from "../types";
 import { LookupForm } from "./LookupForm";
 import { ResultsPanel } from "./ResultsPanel";
-import { RecordSection } from "./RecordSection";
+import { TracerouteResult } from "./TracerouteResult";
+import { WhoisResult } from "./WhoisResult";
+import { AsnResult } from "./AsnResult";
 import { HistoryPanel } from "./HistoryPanel";
 import { StatsPanel } from "./StatsPanel";
 import { Spinner } from "./Spinner";
@@ -147,11 +149,11 @@ export function LookupView() {
                     case "dns":
                         return <ResultsPanel data={r.data} />;
                     case "traceroute":
-                        return renderTracerouteResult(r.data);
+                        return <TracerouteResult data={r.data} />;
                     case "whois":
-                        return renderWhoisResult(r.data);
+                        return <WhoisResult data={r.data} />;
                     case "asn":
-                        return renderAsnResult(r.data);
+                        return <AsnResult data={r.data} />;
                     case "ptr":
                         return renderPtrResult(r.data);
                     default: {
@@ -201,155 +203,8 @@ export function LookupView() {
                 </>
             )}
 
-            {activeTab === "history" && <HistoryPanel />}
-            {activeTab === "stats" && <StatsPanel />}
-        </div>
-    );
-}
-
-function renderTracerouteResult(data: TracerouteResponse) {
-    return (
-        <div className="lookup-result">
-            <div className="lookup-result__header">
-                <h2 className="lookup-result__title">
-                    Traceroute for {data.domain}
-                </h2>
-                {data.isCached && (
-                    <span className="lookup-result__badge">cached</span>
-                )}
-            </div>
-            <div className="lookup-result__body">
-                <div className="lookup-result__fields">
-                    <span className="lookup-result__field-label">
-                        Destination IP
-                    </span>
-                    <span className="lookup-result__field-value">
-                        {data.destinationIp.unwrapOr("unreachable")}
-                    </span>
-                    <span className="lookup-result__field-label">
-                        Hop count
-                    </span>
-                    <span className="lookup-result__field-value">
-                        {data.hops.length}
-                    </span>
-                </div>
-                {data.hops.length > 0 && (
-                    <table className="lookup-result__table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>IP</th>
-                                <th>RTT (ms)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.hops.map((hop) => (
-                                <tr key={hop.hopNumber}>
-                                    <td>{hop.hopNumber}</td>
-                                    <td>{hop.ip}</td>
-                                    <td>
-                                        {hop.rtt1 !== null
-                                            ? hop.rtt1.toFixed(2)
-                                            : "*"}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
-        </div>
-    );
-}
-
-function renderWhoisResult(data: WhoisResponse) {
-    return (
-        <div className="lookup-result">
-            <div className="lookup-result__header">
-                <h2 className="lookup-result__title">
-                    WHOIS for {data.domain}
-                </h2>
-                {data.isCached && (
-                    <span className="lookup-result__badge">cached</span>
-                )}
-            </div>
-            <div className="lookup-result__body">
-                <div className="lookup-result__fields">
-                    <span className="lookup-result__field-label">
-                        Registrar
-                    </span>
-                    <span className="lookup-result__field-value">
-                        {data.registrar.unwrapOr("—")}
-                    </span>
-                    <span className="lookup-result__field-label">Created</span>
-                    <span className="lookup-result__field-value">
-                        {data.creationDate.unwrapOr("—")}
-                    </span>
-                    <span className="lookup-result__field-label">Expires</span>
-                    <span className="lookup-result__field-value">
-                        {data.expirationDate.unwrapOr("—")}
-                    </span>
-                </div>
-                {data.nameServers.length > 0 && (
-                    <div className="lookup-result__section">
-                        <h3 className="lookup-result__section-title">
-                            Name Servers
-                        </h3>
-                        <ul className="lookup-result__list">
-                            {data.nameServers.map((ns) => (
-                                <li
-                                    key={ns}
-                                    className="lookup-result__list-item"
-                                >
-                                    {ns}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-                <div className="lookup-result__section">
-                    <RecordSection
-                        label="RAW DATA"
-                        count={1}
-                        shouldStartExpanded={false}
-                    >
-                        <pre className="lookup-result__pre">{data.rawData}</pre>
-                    </RecordSection>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function renderAsnResult(data: AsnResponse) {
-    return (
-        <div className="lookup-result">
-            <div className="lookup-result__header">
-                <h2 className="lookup-result__title">
-                    ASN Lookup for {data.ip}
-                </h2>
-                {data.isCached && (
-                    <span className="lookup-result__badge">cached</span>
-                )}
-            </div>
-            <div className="lookup-result__body">
-                <div className="lookup-result__fields">
-                    <span className="lookup-result__field-label">
-                        AS Number
-                    </span>
-                    <span className="lookup-result__field-value">
-                        {data.asNumber.mapOr("—", (num) => `AS${String(num)}`)}
-                    </span>
-                    <span className="lookup-result__field-label">AS Name</span>
-                    <span className="lookup-result__field-value">
-                        {data.asName.unwrapOr("—")}
-                    </span>
-                    <span className="lookup-result__field-label">Prefix</span>
-                    <span className="lookup-result__field-value">
-                        {data.prefix.unwrapOr("—")}
-                    </span>
-                </div>
-            </div>
+            <HistoryPanel hidden={activeTab !== "history"} />
+            <StatsPanel hidden={activeTab !== "stats"} />
         </div>
     );
 }

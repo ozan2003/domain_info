@@ -131,6 +131,12 @@ export interface HistoryResponse {
     hasMore: boolean;
 }
 
+export type HistoryDetail =
+    | { kind: "dns"; data: LookupResponse }
+    | { kind: "traceroute"; data: TracerouteResponse }
+    | { kind: "whois"; data: WhoisResponse }
+    | { kind: "asn"; data: AsnResponse };
+
 export interface CacheHitRatio {
     total: number;
     cached: number;

@@ -14,7 +14,7 @@ import { tracerouteHandler } from "./routes/traceroute.js";
 import { whoisHandler } from "./routes/whois.js";
 import { asnHandler } from "./routes/asn.js";
 import { ptrHandler } from "./routes/ptr.js";
-import { historyHandler } from "./routes/history.js";
+import { historyHandler, historyDetailHandler } from "./routes/history.js";
 import { statsHandler } from "./routes/stats.js";
 import {
     registerHandler,
@@ -46,6 +46,7 @@ app.get("/api/whois", requireAuth, whoisHandler); // Usage: /api/whois?domain=ex
 app.get("/api/asn", requireAuth, asnHandler); // Usage: /api/asn?ip=1.1.1.1
 app.get("/api/ptr", requireAuth, ptrHandler); // Usage: /api/ptr?ip=1.1.1.1
 app.get("/api/history", requireAuth, historyHandler); // Usage: /api/history
+app.get("/api/history/:kind/:id", requireAuth, historyDetailHandler); // Usage: /api/history/dns/42
 app.get("/api/stats", requireAuth, statsHandler); // Usage: /api/stats
 
 app.onError((error, ctx) => {

@@ -4,7 +4,7 @@
  *
  * @author Ozan Malcı
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { type Option, Some, None, match } from "oxide.ts";
 import { fetchStats } from "../api";
 import type { StatsResponse, TopDomainEntry } from "../types";
@@ -13,6 +13,7 @@ import { ErrorMessage } from "./ErrorMessage";
 import "./StatsPanel.css";
 
 const LOOKUP_KINDS = ["dns", "traceroute", "whois", "asn"] as const;
+const NETWORK_ERROR_MESSAGE = "Network error. Please try again.";
 type LookupKind = (typeof LOOKUP_KINDS)[number];
 
 const KIND_LABELS: Record<LookupKind, string> = {
@@ -25,43 +26,95 @@ const KIND_LABELS: Record<LookupKind, string> = {
 /**
  * Renders the statistics dashboard with totals, cache ratios, and top lists.
  *
+ * @param hidden When true, the panel is hidden but its state is preserved
+ *   (used to keep stats loaded across tab switches).
  * @returns The stats panel JSX.
  */
-export function StatsPanel() {
+export function StatsPanel({ hidden = false }: { hidden?: boolean } = {}) {
     const [stats, setStats] = useState<Option<StatsResponse>>(None);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Option<string>>(None);
-    const initialFetchDone = useRef(false);
 
     useEffect(() => {
-        if (initialFetchDone.current) {
-            return;
-        }
-        initialFetchDone.current = true;
+        const controller = new AbortController();
         void (async () => {
+            setIsLoading(true);
+            setError(None);
             try {
-                match(await fetchStats(), {
+                const result = await fetchStats(controller.signal);
+                if (controller.signal.aborted) {
+                    return;
+                }
+                match(result, {
                     Ok: (data) => {
                         setStats(Some(data));
+                        setError(None);
                     },
                     Err: (msg) => {
+                        setStats(None);
                         setError(Some(msg));
                     },
                 });
+            } catch {
+                if (controller.signal.aborted) {
+                    return;
+                }
+                setStats(None);
+                setError(Some(NETWORK_ERROR_MESSAGE));
+            } finally {
+                if (!controller.signal.aborted) {
+                    setIsLoading(false);
+                }
+            }
+        })();
+        return () => {
+            controller.abort();
+        };
+    }, []);
+
+    function loadStats() {
+        setIsLoading(true);
+        setError(None);
+        void (async () => {
+            try {
+                const result = await fetchStats();
+                match(result, {
+                    Ok: (data) => {
+                        setStats(Some(data));
+                        setError(None);
+                    },
+                    Err: (msg) => {
+                        setStats(None);
+                        setError(Some(msg));
+                    },
+                });
+            } catch {
+                setStats(None);
+                setError(Some(NETWORK_ERROR_MESSAGE));
             } finally {
                 setIsLoading(false);
             }
         })();
-    }, []);
+    }
+
+    function handleRetry() {
+        loadStats();
+    }
 
     if (isLoading) {
-        return <Spinner text="Loading statistics..." />;
+        return (
+            <div className="stats-panel" hidden={hidden}>
+                <Spinner text="Loading statistics..." />
+            </div>
+        );
     }
 
     return (
-        <div className="stats-panel">
+        <div className="stats-panel" hidden={hidden}>
             {match(error, {
-                Some: (msg) => <ErrorMessage message={msg} />,
+                Some: (msg) => (
+                    <ErrorMessage message={msg} onRetry={handleRetry} />
+                ),
                 None: () => null,
             })}
             {match(stats, {
@@ -211,16 +264,20 @@ interface TracerouteSectionProps {
 }
 
 function TracerouteSection({ data }: TracerouteSectionProps) {
+    if (data.topFirstHops.length === 0 && data.avgHopCount.isNone()) {
+        return null;
+    }
     return (
         <section className="stats-section">
             <h3 className="stats-section__title">Traceroute</h3>
-            {data.avgHopCount
-                .map((v) => (
-                    <p className="stats-metric" key="avg-hop">
+            {match(data.avgHopCount, {
+                Some: (v) => (
+                    <p className="stats-metric">
                         Average hop count: <strong>{v.toFixed(1)}</strong>
                     </p>
-                ))
-                .unwrapOr(<></>)}
+                ),
+                None: () => null,
+            })}
             {data.topFirstHops.length > 0 && (
                 <>
                     <h4 className="stats-subsection__title">
@@ -310,16 +367,14 @@ function AsnSection({ data }: AsnSectionProps) {
                 </thead>
                 <tbody>
                     {data.topAsns.map((asn, idx) => (
-                        <tr
-                            key={`${String(asn.asNumber.unwrapOr(-1))}-${asn.asName.unwrapOr("")}-${String(idx)}`}
-                        >
+                        <tr key={String(idx)}>
                             <td>
                                 {asn.asNumber.mapOr(
-                                    "\u2014",
+                                    "-",
                                     (num) => `AS${String(num)}`,
                                 )}
                             </td>
-                            <td>{asn.asName.unwrapOr("\u2014")}</td>
+                            <td>{asn.asName.unwrapOr("-")}</td>
                             <td>{asn.count}</td>
                         </tr>
                     ))}
