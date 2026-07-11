@@ -28,7 +28,8 @@ export default defineConfig([
             "@typescript-eslint/consistent-type-imports": [
                 "error",
                 { prefer: "type-imports" },
-            ]
+            ],
+            "@typescript-eslint/restrict-template-expressions": "off",
         },
     },
 ]);

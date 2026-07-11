@@ -7,11 +7,15 @@
 
 import "./Spinner.css";
 
-export function Spinner() {
+interface SpinnerProps {
+    text?: string;
+}
+
+export function Spinner({ text = "Loading..." }: SpinnerProps) {
     return (
         <div className="spinner-container">
             <div className="spinner" />
-            <p className="spinner-container__text">Resolving DNS records...</p>
+            <p className="spinner-container__text">{text}</p>
         </div>
     );
 }

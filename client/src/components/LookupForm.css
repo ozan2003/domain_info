@@ -1,6 +1,43 @@
-/* Styles for the domain input form. */
+/* Styles for the lookup form with type selector. */
 
 .lookup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lookup-form__types {
+    display: flex;
+    gap: 4px;
+}
+
+.lookup-form__type {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition:
+        color var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.lookup-form__type:hover {
+    color: var(--color-text);
+    border-color: var(--color-text-muted);
+}
+
+.lookup-form__type--active {
+    color: #fff;
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.lookup-form__row {
     display: flex;
     gap: 10px;
 }

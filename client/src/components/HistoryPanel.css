@@ -1,0 +1,116 @@
+/* Styles for the history panel and its items. */
+
+.history-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.history-panel__empty {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 32px 0;
+}
+
+.history-panel__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.history-item {
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.history-item__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.history-item__kind {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--color-border-subtle);
+    color: var(--color-text-muted);
+    letter-spacing: 0.04em;
+}
+
+.history-item__kind--dns {
+    background: rgba(47, 129, 247, 0.15);
+    color: #58a6ff;
+}
+
+.history-item__kind--traceroute {
+    background: rgba(63, 185, 80, 0.15);
+    color: #56d364;
+}
+
+.history-item__kind--whois {
+    background: rgba(188, 140, 76, 0.15);
+    color: #e3b341;
+}
+
+.history-item__kind--asn {
+    background: rgba(139, 148, 158, 0.15);
+    color: #c9d1d9;
+}
+
+.history-item__time {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    flex: 1;
+    text-align: right;
+}
+
+.history-item__cache-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--color-surface-hover);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+}
+
+.history-item__body {
+    padding: 10px 14px;
+}
+
+.history-item__detail {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    word-break: break-all;
+}
+
+.history-panel__load-more {
+    align-self: center;
+    padding: 8px 24px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.history-panel__load-more:hover:not(:disabled) {
+    background: var(--color-surface-hover);
+    border-color: var(--color-text-muted);
+}
+
+.history-panel__load-more:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

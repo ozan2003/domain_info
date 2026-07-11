@@ -4,8 +4,75 @@
  *
  * @author Ozan Malcı
  */
-import type { AuthUser, LookupResponse } from "./types";
-import { type Result, Ok, Err, type Option, Some, None } from "oxide.ts";
+import type {
+    AsnResponse,
+    AuthUser,
+    HistoryResponse,
+    LookupResponse,
+    PtrResponse,
+    StatsResponse,
+    TracerouteResponse,
+    WhoisResponse,
+} from "./types";
+import { Option, type Result, Ok, Err, Some, None } from "oxide.ts";
+
+interface StatsWireResponse {
+    totals: {
+        dns: number;
+        traceroute: number;
+        whois: number;
+        asn: number;
+    };
+    cacheHitRatio: {
+        dns: { total: number; cached: number; ratio: number };
+        /**
+         * Converts the raw JSON stats payload into the client-side `StatsResponse`
+         * shape by wrapping nullable fields in `Option` values.
+         *
+         * @param data The raw `/api/stats` response body.
+         * @returns The normalized stats response.
+         */
+        traceroute: { total: number; cached: number; ratio: number };
+        whois: { total: number; cached: number; ratio: number };
+        asn: { total: number; cached: number; ratio: number };
+    };
+    topDomains: {
+        dns: { domain: string; count: number }[];
+        traceroute: { domain: string; count: number }[];
+        whois: { domain: string; count: number }[];
+    };
+    traceroute: {
+        avgHopCount: number | null;
+        topFirstHops: { ip: string; count: number }[];
+    };
+    whois: {
+        topRegistrars: { registrar: string; count: number }[];
+    };
+    asn: {
+        topAsns: {
+            asNumber: number | null;
+            asName: string | null;
+            count: number;
+        }[];
+    };
+}
+
+function mapStatsResponse(data: StatsWireResponse): StatsResponse {
+    return {
+        ...data,
+        traceroute: {
+            avgHopCount: Option.from(data.traceroute.avgHopCount),
+            topFirstHops: data.traceroute.topFirstHops,
+        },
+        asn: {
+            topAsns: data.asn.topAsns.map((asn) => ({
+                asNumber: Option.from(asn.asNumber),
+                asName: Option.from(asn.asName),
+                count: asn.count,
+            })),
+        },
+    };
+}
 
 /**
  * Reads a human-readable error message from a failed response.
@@ -135,4 +202,110 @@ export async function logout(): Promise<Result<null, string>> {
         return Err(await readErrorMessage(response));
     }
     return Ok(null);
+}
+
+export async function lookupTraceroute(
+    domain: string,
+): Promise<Result<TracerouteResponse, string>> {
+    const params = new URLSearchParams({ domain });
+    const response = await fetch(`/api/traceroute?${params.toString()}`);
+    if (!response.ok) {
+        return Err(await readErrorMessage(response));
+    }
+    const data = (await response.json()) as TracerouteResponse;
+    return Ok(data);
+}
+
+/**
+ * Fetches WHOIS data for a given domain from the lookup API.
+ *
+ * @param domain The domain name to look up.
+ * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
+ */
+export async function lookupWhois(
+    domain: string,
+): Promise<Result<WhoisResponse, string>> {
+    const params = new URLSearchParams({ domain });
+    const response = await fetch(`/api/whois?${params.toString()}`);
+    if (!response.ok) {
+        return Err(await readErrorMessage(response));
+    }
+    const data = (await response.json()) as WhoisResponse;
+    return Ok(data);
+}
+
+/**
+ * Fetches ASN data for a given IP address from the lookup API.
+ *
+ * @param ip The IP address to look up.
+ * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
+ */
+export async function lookupAsn(
+    ip: string,
+): Promise<Result<AsnResponse, string>> {
+    const params = new URLSearchParams({ ip });
+    const response = await fetch(`/api/asn?${params.toString()}`);
+    if (!response.ok) {
+        return Err(await readErrorMessage(response));
+    }
+    const data = (await response.json()) as AsnResponse;
+    return Ok(data);
+}
+
+/**
+ * Fetches PTR data for a given IP address from the lookup API.
+ *
+ * @param ip The IP address to look up.
+ * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
+ */
+export async function lookupPtr(
+    ip: string,
+): Promise<Result<PtrResponse, string>> {
+    const params = new URLSearchParams({ ip });
+    const response = await fetch(`/api/ptr?${params.toString()}`);
+    if (!response.ok) {
+        return Err(await readErrorMessage(response));
+    }
+    const data = (await response.json()) as PtrResponse;
+    return Ok(data);
+}
+
+/**
+ * Fetches a paginated history page for the authenticated user.
+ *
+ * @param page The 1-based page number to request.
+ * @param pageSize Optional page size override.
+ * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
+ */
+export async function fetchHistory(
+    page: number,
+    pageSize?: number,
+): Promise<Result<HistoryResponse, string>> {
+    const params = new URLSearchParams({ page: String(page) });
+    if (pageSize !== undefined) {
+        params.set("pageSize", String(pageSize));
+    }
+    const response = await fetch(`/api/history?${params.toString()}`);
+    if (!response.ok) {
+        return Err(await readErrorMessage(response));
+    }
+    const data = (await response.json()) as HistoryResponse;
+    return Ok(data);
+}
+
+/**
+ * Fetches the authenticated user's aggregate lookup statistics.
+ *
+ * The raw API response uses `null` for missing values; this helper converts
+ * those fields to `Option` so the UI can consume a consistent client shape.
+ *
+ * @returns `Ok(data)` on success, or `Err(message)` if the request fails.
+ */
+export async function fetchStats(): Promise<Result<StatsResponse, string>> {
+    const response = await fetch("/api/stats");
+    if (!response.ok) {
+        return Err(await readErrorMessage(response));
+    }
+    const data = (await response.json()) as StatsWireResponse;
+    return Ok(mapStatsResponse(data));
 }
