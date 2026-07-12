@@ -31,6 +31,25 @@ interface ResultsPanelProps {
  * @returns The results panel JSX.
  */
 export function ResultsPanel({ data }: ResultsPanelProps) {
+    const hasAnyRecords =
+        data.a.length > 0 ||
+        data.aaaa.length > 0 ||
+        data.mx.length > 0 ||
+        data.ns.length > 0 ||
+        data.txt.length > 0 ||
+        data.cname.length > 0;
+
+    if (!hasAnyRecords) {
+        return (
+            <div className="results-panel">
+                <h2 className="results-panel__domain">{data.domain}</h2>
+                <p className="results-panel__empty">
+                    No DNS records found for this domain.
+                </p>
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="results-panel">
@@ -112,8 +131,7 @@ export function ResultsPanel({ data }: ResultsPanelProps) {
                 <RecordSection
                     label="TXT"
                     count={data.txt.length}
-                    copiedText={data.txt
-                        .join("\n")}
+                    copiedText={data.txt.join("\n")}
                     infoText={INFO_TEXTS.TXT}
                 >
                     <ul className="record-list">
