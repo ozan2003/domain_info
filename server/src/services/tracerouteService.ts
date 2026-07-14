@@ -7,6 +7,10 @@
  */
 import { type Option, Some, None } from "oxide.ts";
 import Traceroute from "nodejs-traceroute";
+import {
+    TRACEROUTE_NOT_FOUND_ERROR_MSG,
+    TRACEROUTE_START_FAILED_ERROR_MSG,
+} from "../constants.js";
 
 export interface TracerouteHop {
     hopNumber: number;
@@ -113,11 +117,7 @@ export async function runTraceroute(domain: string): Promise<TracerouteResult> {
 
         tracer.on("close", (code: number) => {
             if (code === 127) {
-                fail(
-                    new Error(
-                        "Traceroute command not found. Please ensure traceroute (Linux/macOS) or tracert (Windows) is installed.",
-                    ),
-                );
+                fail(new Error(TRACEROUTE_NOT_FOUND_ERROR_MSG));
                 return;
             }
             finish({ destinationIp, hops });
@@ -128,7 +128,9 @@ export async function runTraceroute(domain: string): Promise<TracerouteResult> {
         } catch (err: unknown) {
             fail(
                 new Error(
-                    `Failed to start traceroute: ${err instanceof Error ? err.message : String(err)}`,
+                    TRACEROUTE_START_FAILED_ERROR_MSG(
+                        err instanceof Error ? err.message : String(err),
+                    ),
                 ),
             );
         }

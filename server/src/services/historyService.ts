@@ -32,6 +32,10 @@ import type { LookupResponse } from "../schemas/lookup.schema.js";
 import type { TracerouteResponse } from "../schemas/traceroute.schema.js";
 import type { WhoisResponse } from "../schemas/whois.schema.js";
 import type { AsnResponse } from "../schemas/asn.schema.js";
+import {
+    INVALID_KIND_ERROR_MSG,
+    HISTORY_NOT_FOUND_ERROR_MSG,
+} from "../constants.js";
 
 /**
  * Projects a `Lookup` row (with record counts) into a DNS history item.
@@ -247,7 +251,7 @@ export async function getHistoryDetail(
     userId: number,
 ): Promise<HistoryDetail> {
     if (!VALID_KINDS.has(kind)) {
-        throw new HTTPException(400, { message: `Invalid kind: ${kind}` });
+        throw new HTTPException(400, { message: INVALID_KIND_ERROR_MSG(kind) });
     }
 
     switch (kind) {
@@ -265,7 +269,7 @@ export async function getHistoryDetail(
             });
             if (!row) {
                 throw new HTTPException(404, {
-                    message: "History item not found",
+                    message: HISTORY_NOT_FOUND_ERROR_MSG,
                 });
             }
             return {
@@ -290,7 +294,7 @@ export async function getHistoryDetail(
             });
             if (!row) {
                 throw new HTTPException(404, {
-                    message: "History item not found",
+                    message: HISTORY_NOT_FOUND_ERROR_MSG,
                 });
             }
             return {
@@ -311,7 +315,7 @@ export async function getHistoryDetail(
             });
             if (!row) {
                 throw new HTTPException(404, {
-                    message: "History item not found",
+                    message: HISTORY_NOT_FOUND_ERROR_MSG,
                 });
             }
             return {
@@ -336,7 +340,7 @@ export async function getHistoryDetail(
             });
             if (!row) {
                 throw new HTTPException(404, {
-                    message: "History item not found",
+                    message: HISTORY_NOT_FOUND_ERROR_MSG,
                 });
             }
             return {
@@ -350,7 +354,7 @@ export async function getHistoryDetail(
         }
         default:
             throw new HTTPException(400, {
-                message: `Invalid kind: ${kind}`,
+                message: INVALID_KIND_ERROR_MSG(kind),
             });
     }
 }

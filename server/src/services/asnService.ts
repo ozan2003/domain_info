@@ -14,6 +14,7 @@
 import { promises as dns } from "node:dns";
 import { isIP } from "node:net";
 import { type Option, Some, None } from "oxide.ts";
+import { INVALID_IP_ERROR_MSG } from "../constants.js";
 
 export type AsnLookupResult = {
     ip: string;
@@ -87,7 +88,7 @@ function parseAsnDescriptionResponse(text: string): Option<string> {
  */
 export async function lookupAsn(ip: string): Promise<AsnLookupResult> {
     if (isIP(ip) === 0) {
-        throw new Error("invalid ip address");
+        throw new Error(INVALID_IP_ERROR_MSG);
     }
 
     const originText = await resolveTxtQuiet(originQuery(ip));

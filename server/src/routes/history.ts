@@ -12,6 +12,10 @@ import { historyQuerySchema } from "../schemas/history.schema.js";
 import { getHistory, getHistoryDetail } from "../services/historyService.js";
 import { parseQuery } from "../lib/validate.js";
 import type { AppEnv } from "../types/app.js";
+import {
+    MISSING_KIND_ID_ERROR_MSG,
+    INVALID_ID_ERROR_MSG,
+} from "../constants.js";
 
 /**
  * Handles GET /api/history requests.
@@ -45,13 +49,13 @@ export async function historyDetailHandler(
     const rawId = ctx.req.param("id");
 
     if (!kind || !rawId) {
-        throw new HTTPException(400, { message: "Missing kind or id parameter" });
+        throw new HTTPException(400, { message: MISSING_KIND_ID_ERROR_MSG });
     }
     const { userId } = ctx.get("authUser");
 
     const id = Number(rawId);
     if (!Number.isInteger(id) || id <= 0) {
-        throw new HTTPException(400, { message: `Invalid id: ${rawId}` });
+        throw new HTTPException(400, { message: INVALID_ID_ERROR_MSG(rawId) });
     }
 
     return ctx.json(await getHistoryDetail(kind, id, userId));

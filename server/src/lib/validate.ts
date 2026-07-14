@@ -10,6 +10,11 @@ import type { Context, Env } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { Option } from "oxide.ts";
 import type { z } from "zod";
+import {
+    INVALID_QUERY_ERROR_MSG,
+    INVALID_JSON_BODY_ERROR_MSG,
+    INVALID_INPUT_ERROR_MSG,
+} from "../constants.js";
 
 /**
  * Parses and validates the request query string against a Zod schema.
@@ -29,7 +34,7 @@ export function parseQuery<E extends Env, S extends z.ZodType>(
     const result = schema.safeParse(ctx.req.query());
     if (!result.success) {
         const message = Option.from(result.error.issues[0]?.message).unwrapOr(
-            "Invalid query",
+            INVALID_QUERY_ERROR_MSG,
         );
         throw new HTTPException(400, { message });
     }
@@ -55,12 +60,12 @@ export async function parseJson<E extends Env, S extends z.ZodType>(
     try {
         body = await ctx.req.json();
     } catch {
-        throw new HTTPException(400, { message: "Invalid JSON body" });
+        throw new HTTPException(400, { message: INVALID_JSON_BODY_ERROR_MSG });
     }
     const result = schema.safeParse(body);
     if (!result.success) {
         const message = Option.from(result.error.issues[0]?.message).unwrapOr(
-            "Invalid input",
+            INVALID_INPUT_ERROR_MSG,
         );
         throw new HTTPException(400, { message });
     }

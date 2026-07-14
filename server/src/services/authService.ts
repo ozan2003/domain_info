@@ -10,24 +10,28 @@ import { sign, verify } from "hono/jwt";
 import { prisma } from "../db.js";
 import { HTTPException } from "hono/http-exception";
 import type { AuthUser } from "../schemas/auth.schema.js";
+import {
+    JWT_SECRET_MISSING_ERROR_MSG,
+    JWT_SECRET_PLACEHOLDER_ERROR_MSG,
+    JWT_SECRET_TOO_SHORT_ERROR_MSG,
+    MIN_JWT_SECRET_LENGTH,
+    INVALID_TOKEN_ERROR_MSG,
+    INVALID_TOKEN_PAYLOAD_ERROR_MSG,
+    EMAIL_TAKEN_ERROR_MSG,
+    INVALID_CREDENTIALS_ERROR_MSG,
+} from "../constants.js";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "";
 const JWT_EXPIRY_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
-const MIN_JWT_SECRET_LENGTH = 32;
-
 if (!JWT_SECRET) {
-    throw new Error("JWT_SECRET environment variable is not set");
+    throw new Error(JWT_SECRET_MISSING_ERROR_MSG);
 }
 if (JWT_SECRET.length < MIN_JWT_SECRET_LENGTH) {
-    throw new Error(
-        `JWT_SECRET must be at least ${MIN_JWT_SECRET_LENGTH} characters (got ${JWT_SECRET.length})`,
-    );
+    throw new Error(JWT_SECRET_TOO_SHORT_ERROR_MSG(JWT_SECRET.length));
 }
 if (JWT_SECRET.toLowerCase().includes("change-me")) {
-    throw new Error(
-        "JWT_SECRET is still the placeholder value. Set a real secret in .env",
-    );
+    throw new Error(JWT_SECRET_PLACEHOLDER_ERROR_MSG);
 }
 
 /**
@@ -89,13 +93,15 @@ export async function verifyToken(token: string): Promise<AuthUser> {
     try {
         payload = await verify(token, JWT_SECRET, "HS256");
     } catch {
-        throw new HTTPException(401, { message: "invalid or expired token" });
+        throw new HTTPException(401, { message: INVALID_TOKEN_ERROR_MSG });
     }
 
     const userId = payload.userId as number | undefined;
     const email = payload.email as string | undefined;
     if (!userId || !email) {
-        throw new HTTPException(401, { message: "invalid token payload" });
+        throw new HTTPException(401, {
+            message: INVALID_TOKEN_PAYLOAD_ERROR_MSG,
+        });
     }
     return { userId, email };
 }
@@ -113,7 +119,7 @@ export async function registerUser(
 ): Promise<AuthUser> {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-        throw new HTTPException(409, { message: "email already registered" });
+        throw new HTTPException(409, { message: EMAIL_TAKEN_ERROR_MSG });
     }
 
     const passwordHash = await hashPassword(password);
@@ -137,12 +143,16 @@ export async function loginUser(
 ): Promise<AuthUser> {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-        throw new HTTPException(401, { message: "invalid email or password" });
+        throw new HTTPException(401, {
+            message: INVALID_CREDENTIALS_ERROR_MSG,
+        });
     }
 
     const valid = await checkPassword(user.passwordHash, password);
     if (!valid) {
-        throw new HTTPException(401, { message: "invalid email or password" });
+        throw new HTTPException(401, {
+            message: INVALID_CREDENTIALS_ERROR_MSG,
+        });
     }
 
     return { userId: user.id, email: user.email } satisfies AuthUser;

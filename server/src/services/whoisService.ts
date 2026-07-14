@@ -6,6 +6,10 @@
  */
 import { lookup } from "whois";
 import { type Option, Some, None } from "oxide.ts";
+import {
+    WHOIS_LOOKUP_FAILED_ERROR_MSG,
+    WHOIS_NO_DATA_ERROR_MSG,
+} from "../constants.js";
 
 export type WhoisLookupResult = {
     rawData: string;
@@ -85,7 +89,7 @@ function toErrorMessage(error: unknown): string {
         return error.message;
     }
 
-    return "whois lookup failed";
+    return WHOIS_LOOKUP_FAILED_ERROR_MSG;
 }
 
 /**
@@ -104,7 +108,7 @@ export async function lookupWhois(domain: string): Promise<WhoisLookupResult> {
 
             const rawData = asText(data);
             if (!rawData.trim()) {
-                reject(new Error("whois lookup returned no data"));
+                reject(new Error(WHOIS_NO_DATA_ERROR_MSG));
                 return;
             }
 

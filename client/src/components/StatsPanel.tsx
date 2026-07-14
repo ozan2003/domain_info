@@ -10,10 +10,10 @@ import { fetchStats } from "../api";
 import type { StatsResponse, TopDomainEntry } from "../types";
 import { Spinner } from "./Spinner";
 import { ErrorMessage } from "./ErrorMessage";
+import { NETWORK_ERROR_MESSAGE } from "../constants";
 import "./StatsPanel.css";
 
 const LOOKUP_KINDS = ["dns", "traceroute", "whois", "asn"] as const;
-const NETWORK_ERROR_MESSAGE = "Network error. Please try again.";
 type LookupKind = (typeof LOOKUP_KINDS)[number];
 
 const KIND_LABELS: Record<LookupKind, string> = {

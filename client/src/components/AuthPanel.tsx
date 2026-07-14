@@ -9,11 +9,10 @@ import { useState, type SyntheticEvent } from "react";
 import { useAuth } from "../context/auth";
 import { ErrorMessage } from "./ErrorMessage";
 import { match } from "oxide.ts";
+import { MIN_PASSWORD_LENGTH, SHORT_PASSWD_ERROR_MSG } from "../constants";
 import "./AuthPanel.css";
 
 type Mode = "login" | "register";
-
-const MIN_PASSWORD_LENGTH = 8;
 
 /**
  * Renders the auth card with a tab toggle and the email/password form.
@@ -44,9 +43,7 @@ export function AuthPanel() {
         setError(null);
 
         if (password.length < MIN_PASSWORD_LENGTH) {
-            setError(
-                `Password must be at least ${String(MIN_PASSWORD_LENGTH)} characters`,
-            );
+            setError(SHORT_PASSWD_ERROR_MSG);
             return;
         }
 

@@ -6,13 +6,14 @@
  */
 import * as z from "zod";
 import { isIP } from "node:net";
+import { INVALID_IP_ERROR_MSG, REQUIRED_IP_ERROR_MSG } from "../constants.js";
 
 export const asnQuerySchema = z.object({
     ip: z
         .string()
         .trim()
-        .min(1, "ip is required")
-        .refine((value) => isIP(value) !== 0, "invalid ip address"),
+        .min(1, REQUIRED_IP_ERROR_MSG)
+        .refine((value) => isIP(value) !== 0, INVALID_IP_ERROR_MSG),
 });
 
 export const asnResponseSchema = z.object({

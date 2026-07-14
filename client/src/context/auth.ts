@@ -9,6 +9,7 @@
 import { createContext, useContext } from "react";
 import type { AuthUser } from "../types";
 import type { Option, Result } from "oxide.ts";
+import { AUTH_CONTEXT_ERROR_MSG } from "../constants";
 
 /** Value exposed through the auth context. */
 export interface AuthContextValue {
@@ -42,7 +43,7 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 export function useAuth(): AuthContextValue {
     const ctx = useContext(AuthContext);
     if (ctx === null) {
-        throw new Error("useAuth must be used within an AuthProvider");
+        throw new Error(AUTH_CONTEXT_ERROR_MSG);
     }
     return ctx;
 }

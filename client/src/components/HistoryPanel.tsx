@@ -15,10 +15,10 @@ import { ResultsPanel } from "./ResultsPanel";
 import { TracerouteResult } from "./TracerouteResult";
 import { WhoisResult } from "./WhoisResult";
 import { AsnResult } from "./AsnResult";
+import { NETWORK_ERROR_MESSAGE } from "../constants";
 import "./HistoryPanel.css";
 
 const PAGE_SIZE = 25;
-const NETWORK_ERROR_MESSAGE = "Network error. Please try again.";
 
 interface DetailState {
     isLoading: boolean;

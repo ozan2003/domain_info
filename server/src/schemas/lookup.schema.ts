@@ -5,15 +5,19 @@
  * @author Ozan Malcı
  */
 import * as z from "zod";
+import {
+    DOMAIN_REQUIRED_ERROR_MSG,
+    DOMAIN_TOO_LONG_ERROR_MSG,
+} from "../constants.js";
 
 export const lookupQuerySchema = z.object({
     domain: z
         .hostname()
         .trim()
-        .min(1, "domain is required")
+        .min(1, DOMAIN_REQUIRED_ERROR_MSG)
         // 253 is the max length of a DNS name.
         // https://web.archive.org/web/20190518124533/https://devblogs.microsoft.com/oldnewthing/?p=7873
-        .max(253, "domain is too long"),
+        .max(253, DOMAIN_TOO_LONG_ERROR_MSG),
 });
 
 // Zod schema used for runtime validation. So we can't use `MxRecord` from `node:dns`.

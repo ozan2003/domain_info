@@ -10,6 +10,7 @@ import { getCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { verifyToken } from "../services/authService.js";
 import type { AppEnv } from "../types/app.js";
+import { AUTH_REQUIRED_ERROR_MSG } from "../constants.js";
 
 /**
  * Middleware that requires a valid JWT cookie. Attaches `authUser` to context.
@@ -24,7 +25,7 @@ export async function requireAuth(
 ): Promise<void> {
     const token = getCookie(ctx, "token");
     if (!token) {
-        throw new HTTPException(401, { message: "authentication required" });
+        throw new HTTPException(401, { message: AUTH_REQUIRED_ERROR_MSG });
     }
 
     const authUser = await verifyToken(token);

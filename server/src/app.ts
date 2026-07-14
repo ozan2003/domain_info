@@ -24,6 +24,7 @@ import {
 } from "./routes/auth.js";
 import { requireAuth } from "./middleware/requireAuth.js";
 import type { AppEnv } from "./types/app.js";
+import { INTERNAL_SERVER_ERROR_MSG, NOT_FOUND_ERROR_MSG } from "./constants.js";
 
 const app = new Hono<AppEnv>();
 
@@ -55,12 +56,16 @@ app.onError((error, ctx) => {
     }
 
     console.error(error);
-    return ctx.json({ error: "Internal Server Error" }, 500);
+    return ctx.json({ error: INTERNAL_SERVER_ERROR_MSG }, 500);
 });
 
 app.notFound((ctx) => {
     return ctx.json(
-        { error: "Not Found", path: ctx.req.path, method: ctx.req.method },
+        {
+            error: NOT_FOUND_ERROR_MSG,
+            path: ctx.req.path,
+            method: ctx.req.method,
+        },
         404,
     );
 });

@@ -5,20 +5,14 @@
  * @author Ozan Malcı
  */
 import * as z from "zod";
-
-const MIN_PASSWORD_LENGTH = 8;
+import { MIN_PASSWORD_LENGTH, SHORT_PASSWD_ERROR_MSG } from "../constants.js";
 
 /**
  * Validation schema for user registration and login.
  */
 export const registerSchema = z.object({
     email: z.email().trim().toLowerCase(),
-    password: z
-        .string()
-        .min(
-            MIN_PASSWORD_LENGTH,
-            `password must be at least ${MIN_PASSWORD_LENGTH} characters`,
-        ),
+    password: z.string().min(MIN_PASSWORD_LENGTH, SHORT_PASSWD_ERROR_MSG),
 });
 
 export const loginSchema = registerSchema;
