@@ -24,6 +24,15 @@ import {
 const JWT_SECRET = process.env.JWT_SECRET ?? "";
 const JWT_EXPIRY_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
+// argon2 params tuned for 1 GB-RAM hosts (e.g. AWS EC2 t2.micro free tier).
+// Defaults (~64 MiB) can OOM-kill the node process under concurrent signups.
+const ARGON2_OPTS = {
+    type: 2 as const, // argon2id
+    memoryCost: 19456, // 19 MiB (argon2 minimum)
+    timeCost: 2,
+    parallelism: 1,
+};
+
 if (!JWT_SECRET) {
     throw new Error(JWT_SECRET_MISSING_ERROR_MSG);
 }
@@ -41,7 +50,7 @@ if (JWT_SECRET.toLowerCase().includes("change-me")) {
  * @returns The argon2 hash string.
  */
 export async function hashPassword(password: string): Promise<string> {
-    return hash(password);
+    return hash(password, ARGON2_OPTS);
 }
 
 /**

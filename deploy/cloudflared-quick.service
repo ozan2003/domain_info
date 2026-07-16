@@ -1,0 +1,16 @@
+[Unit]
+Description=Cloudflare quick tunnel -> http://localhost:80
+After=network-online.target nginx.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate --url http://localhost:80
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/var/log/domain_info/cloudflared.log
+StandardError=append:/var/log/domain_info/cloudflared.log
+
+[Install]
+WantedBy=multi-user.target

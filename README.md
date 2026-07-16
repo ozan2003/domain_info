@@ -136,3 +136,10 @@ between tests.
 | `npm run build`   | Type-check and build for production |
 | `npm run preview` | Preview production build            |
 | `npm run lint`    | Run ESLint                          |
+
+## Deployment
+
+A free-tier deployment on **AWS EC2 t2.micro** (12-month free tier) with
+**Cloudflare quick tunnel** for an instant `https://*.trycloudflare.com`
+URL is documented in [`docs/deploy-aws.md`](docs/deploy-aws.md).
+GitHub Actions auto-deploys on every push to `main`.

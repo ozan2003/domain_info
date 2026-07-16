@@ -1,0 +1,108 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy to EC2
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install server deps
+        working-directory: server
+        run: npm ci
+
+      - name: Install client deps
+        working-directory: client
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: server
+        run: npx prisma generate
+
+      - name: Build server
+        working-directory: server
+        run: npm run build
+
+      - name: Build client
+        working-directory: client
+        run: npm run build
+
+      - name: Show server build output
+        working-directory: server
+        run: ls -la dist
+
+      - name: Show client build output
+        working-directory: client
+        run: ls -la dist
+
+      - name: Copy build artifacts to a staging dir
+        run: |
+          STAGE="$RUNNER_TEMP/stage"
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE/server" "$STAGE/client"
+          # Server: dist + prisma + node_modules_prod (no dev deps needed at runtime,
+          # but we ship full node_modules to keep argon2 native bindings + traceroute
+          # happy; size is acceptable)
+          rsync -a --delete \
+            --exclude='.env' \
+            --exclude='*.db' \
+            --exclude='tests/' \
+            server/dist/        "$STAGE/server/dist/"
+          rsync -a --delete \
+            --exclude='.env' \
+            --exclude='*.db' \
+            --exclude='tests/' \
+            server/node_modules/ "$STAGE/server/node_modules/"
+          rsync -a --delete \
+            server/prisma/      "$STAGE/server/prisma/"
+          rsync -a --delete \
+            server/package.json "$STAGE/server/"
+          # Client
+          rsync -a --delete client/dist/ "$STAGE/client/dist/"
+
+      - name: Deploy to EC2 via rsync + ssh
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          echo "==> rsync server/"
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            "$RUNNER_TEMP/stage/server/" \
+            "${EC2_USER}@${EC2_HOST}:/opt/domain_info/server/"
+
+          echo "==> rsync client/"
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            "$RUNNER_TEMP/stage/client/" \
+            "${EC2_USER}@${EC2_HOST}:/opt/domain_info/client/"
+
+          echo "==> restart service"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            "${EC2_USER}@${EC2_HOST}" \
+            'sudo systemctl restart domain_info && sleep 2 && sudo systemctl is-active domain_info'

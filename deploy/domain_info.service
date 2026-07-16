@@ -1,0 +1,25 @@
+[Unit]
+Description=domain_info backend (Hono + Node)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/domain_info/server
+EnvironmentFile=/var/lib/domain_info/.env
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/var/log/domain_info/server.log
+StandardError=append:/var/log/domain_info/server.log
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/domain_info /var/log/domain_info
+
+[Install]
+WantedBy=multi-user.target
