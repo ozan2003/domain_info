@@ -106,7 +106,7 @@
 ### 3.1 Backend Modülleri
 
 | Modül | Dosya(lar) | Sorumluluk |
-|---|---|---|
+| --- | --- | --- |
 | **Giriş noktası** | `src/index.ts`, `src/app.ts` | Sunucu başlatma, middleware zinciri, route kaydı |
 | **Veritabanı** | `src/db.ts`, `prisma/schema.prisma` | Prisma client singleton, 12 model, 3 migration |
 | **Kimlik doğrulama** | `routes/auth.ts`, `services/authService.ts`, `middleware/requireAuth.ts` | Register/login/logout/me, argon2 hash, JWT sign/verify, cookie yönetimi |
@@ -180,7 +180,7 @@ App
 ### Tablo Detayları
 
 | Tablo | Alanlar | Açıklama |
-|---|---|---|
+| --- | --- | --- |
 | **User** | id, email (unique), passwordHash, createdAt | Kimlik doğrulama |
 | **Lookup** | id, domain, isCached ("cached"), createdAt, userId | DNS ana kaydı |
 | **ARecord** | id, address, lookupId (FK->Lookup CASCADE) | IPv4 adresleri |
@@ -208,7 +208,7 @@ App
 ### 5.1 Kimlik Doğrulama
 
 | Method | Path | Body | Yanıt | Açıklama |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | POST | `/api/auth/register` | `{email, password}` | `{user: {id, email}}` + cookie | Kayıt ol |
 | POST | `/api/auth/login` | `{email, password}` | `{user: {id, email}}` + cookie | Giriş yap |
 | POST | `/api/auth/logout` | — | `{ok: true}` + clear cookie | Çıkış yap |
@@ -219,7 +219,7 @@ App
 Tümü `GET` metodudur ve `token` cookie'si gerektirir.
 
 | Path | Query Param | Yanıt |
-|---|---|---|
+| --- | --- | --- |
 | `/api/lookup` | `?domain=example.com` | `{records: {a, aaaa?, mx, ns, txt, cname}, isCached, createdAt}` |
 | `/api/traceroute` | `?domain=example.com` | `{hops: [{hopNumber, ip, rtt1}], destinationIp?, hopCount, isCached, createdAt}` |
 | `/api/whois` | `?domain=example.com` | `{registrar?, creationDate?, expirationDate?, nameServers?, rawData, isCached, createdAt}` |
@@ -229,7 +229,7 @@ Tümü `GET` metodudur ve `token` cookie'si gerektirir.
 ### 5.3 Kullanıcı Verileri
 
 | Path | Query | Yanıt |
-|---|---|---|
+| --- | --- | --- |
 | `/api/history` | `?page=1&pageSize=25` | `{items: HistoryItem[], total, page, pageSize, totalPages}` |
 | `/api/history/:kind/:id` | — | Detaylı lookup verisi (kind: "lookup" \| "traceroute" \| "whois" \| "asn") |
 | `/api/stats` | — | `{totals, cacheHitRatio, topDomains, topRegistrars, topAsns, avgHopCount, topFirstHopIps}` |
@@ -257,7 +257,7 @@ Her sorgu türü için aynı pattern uygulanır:
 ## 7. Hata Yönetimi
 
 | Katman | Mekanizma |
-|---|---|
+| --- | --- |
 | **Veri doğrulama** | Zod şemaları -> `parseQuery`/`parseJson` -> geçersizse `HTTPException(400)` |
 | **İş mantığı** | `oxide.ts` -> `Option<T>` (nullable değerler), `Result<T, E>` (başarılı/başarısız işlemler), `match()` pattern matching |
 | **HTTP cevapları** | Hono `HTTPException` ile durum kodları (400, 401, 404, 500) |
@@ -269,7 +269,7 @@ Her sorgu türü için aynı pattern uygulanır:
 ## 8. Güvenlik
 
 | Konu | Uygulama |
-|---|---|
+| --- | --- |
 | **Şifre saklama** | argon2id hash (salt + hash birlikte) |
 | **Oturum yönetimi** | JWT (HS256), 7 gün expiry, httpOnly + sameSite cookie |
 | **Yetkilendirme** | `requireAuth` middleware tüm `/api/*` route'larını korur (register/login hariç) |

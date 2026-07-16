@@ -30,7 +30,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### 1.3 Teknoloji Seçimi
 
 | Katman | Teknoloji | Seçim Gerekçesi |
-|---|---|---|
+| --- | --- | --- |
 | Frontend | React 19 + Vite 8 + TypeScript | Hızlı geliştirme, strict tip kontrolü |
 | Backend | Hono 4 + Node.js | Hafif, hızlı, Zod entegrasyonu kolay |
 | Veritabanı | SQLite + Prisma ORM | Kurulum gerektirmez, taşınabilir, migration desteği |
@@ -46,7 +46,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP1: Proje Kurulumu ve Temel API (29 Haziran)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP1.1 | Proje iskelesi, Hono + TypeScript kurulumu | 1,5 saat | `ea9f2a9`, `c5e36af` |
 | WP1.2 | Temel DNS lookup API endpoint'i | 1 saat | `be02f67` |
 | WP1.3 | CORS middleware, Zod validasyon | 1 saat | `c9c275a`, `62055c0`, `43bfa0e` |
@@ -59,7 +59,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP2: Veritabanı Tasarımı ve DNS Cache (30 Haziran)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP2.1 | Prisma kurulumu, schema tasarımı | 1 saat | `f2d4053`, `62caa02` |
 | WP2.2 | DNS lookup cache + DB persist | 3,5 saat | `84c69f8`, `5555c73` |
 
@@ -70,7 +70,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP3: Frontend Temel Yapı (1-3 Temmuz)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP3.1 | Client proje iskelesi, Vite proxy, koyu tema | 1 saat | `2b3a75e` |
 | WP3.2 | Ortak tip tanımları ve API katmanı | 1,5 saat | `c77bd3e`, `a4df8cd` |
 | WP3.3 | Lookup form + ResultsPanel bileşenleri | 3,5 saat | `78edaca`, `eb8bc8d`, `b0686d3` |
@@ -84,7 +84,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP4: Kimlik Doğrulama ve Test Altyapısı (6-7 Temmuz)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP4.1 | Kod iyileştirme, linting, CSS düzeltmeleri | 2 saat | `085adaa`, `939ae98`, `85e7c5b`, `7579098` |
 | WP4.2 | TXT kaydı düzeltmesi, MX priority fix | 1 saat | `c93df86`, `8094350`, `217c2db` |
 | WP4.3 | User, ASNLookup ve diğer modeller | 0,5 saat | `6a01a3b` |
@@ -98,7 +98,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP5: DNS İyileştirmeleri ve Hata Yönetimi (8 Temmuz)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP5.1 | AAAA kaydı implementasyonu | 1 saat | `8ebb6a4`, `81551b6` |
 | WP5.2 | Client-server tip senkronizasyonu | 0,5 saat | `5b3653c` |
 | WP5.3 | oxide.ts entegrasyonu (Option/Result/match) | 1 saat | `6407abd`, `c272a1c` |
@@ -110,7 +110,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP6: Traceroute ve WHOIS (8 Temmuz)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP6.1 | nodejs-traceroute entegrasyonu, cache | 2,5 saat | `df5c467` |
 | WP6.2 | WHOIS sorgulama + metin parse + cache | 4 saat | `82fd6af` |
 
@@ -121,7 +121,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP7: ASN, History, Stats Backend + PTR (9-10 Temmuz)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP7.1 | ASN sorgulama (Team Cymru DNS) + cache | 2 saat | `e70f09c` |
 | WP7.2 | Merkezi validasyon yardımcıları | 0,5 saat | `c332ba4` |
 | WP7.3 | History ve Stats route'ları (iskelet) | 0,5 saat | `47e06c4` |
@@ -138,7 +138,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP8: Frontend Auth + History/Stats UI (10-12 Temmuz)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP8.1 | AuthPanel + AuthProvider (giriş/kayıt arayüzü) | 3 saat | `acb1743` |
 | WP8.2 | HistoryPanel (sayfalı liste, genişletilebilir) | 4 saat | `6b76423`, `67c8cb5` |
 | WP8.3 | useLookup hook, PtrResult, boş kayıt metni | 2 saat | `2d02f91`, `02d47f7` |
@@ -150,7 +150,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ### WP9: Son Düzenlemeler (14 Temmuz)
 
 | İş Paketi | Açıklama | Tahmini Süre | Git Commit'leri |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | WP9.1 | Hata mesajlarını ve sabitleri merkezileştirme | 1,5 saat | `4e583b1` |
 
 **Toplam:** ~1,5 saat
@@ -160,7 +160,7 @@ Domain Info, kullanıcıların bir domain hakkında kapsamlı ağ tanılama bilg
 ## 3. Zaman Çizelgesi
 
 | İş Paketi | Başlangıç | Bitiş | Süre (saat) | Bağımlılık |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | WP1: Kurulum ve Temel API | 29 Haz 16:07 | 29 Haz 19:17 | 4,5 | — |
 | WP2: Veritabanı + DNS Cache | 30 Haz 09:19 | 30 Haz 13:49 | 4,5 | WP1 |
 | WP3: Frontend Temel Yapı | 1 Tem 15:42 | 3 Tem 21:02 | 8,5 | WP2 |
@@ -196,13 +196,13 @@ WP9 Son Düz.                                                       XX
 ### 4.1 İnsan Kaynağı
 
 | Rol | Kişi | Sorumluluk |
-|---|---|---|
+| --- | --- | --- |
 | Tam Yığın Geliştirici | Ozan Malci | Tüm geliştirme, test, dokümantasyon |
 
 ### 4.2 Donanım / Yazılım Kaynakları
 
 | Kaynak | Açıklama |
-|---|---|
+| --- | --- |
 | Geliştirme ortamı | Windows 11, VS Code, PowerShell 7 |
 | Sürüm kontrolü | Git + GitHub |
 | Çalışma zamanı | Node.js 22+ |
@@ -218,7 +218,7 @@ Proje tamamen açık kaynak araçlar ve ücretsiz harici servisler kullanılarak
 ## 5. Risk Analizi
 
 | # | Risk | Olasılık | Etki | Azaltma Stratejisi |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | R1 | `nodejs-traceroute` event-based API'si, Promise ile sarmalanırken bellek sızıntısı veya zombie process oluşabilir | Orta | Yüksek | 60 saniye timeout uygulandı; cleanup için abort mekanizması test edildi |
 | R2 | WHOIS sunucuları her domain için farklı formatta yanıt döner, parse kırılganlığı | Yüksek | Orta | `registrar`, `creationDate`, `expirationDate`, `nameServers` alanları `Option` olarak tanımlandı; parse başarısız olsa bile `rawData` her zaman döner |
 | R3 | Harici DNS/WHOIS sorguları rate-limit'e takılabilir veya timeout olabilir | Orta | Düşük | 1 saatlik cache, tekrarlayan sorguları engeller; timeout/başarısız sorgular uygun hata mesajıyla kullanıcıya bildirilir |
@@ -232,7 +232,7 @@ Proje tamamen açık kaynak araçlar ve ücretsiz harici servisler kullanılarak
 ### 6.1 Kod Kalitesi
 
 | Uygulama | Araç | Açıklama |
-|---|---|---|
+| --- | --- | --- |
 | Statik analiz | ESLint (strict config) | `npx eslint .` ile tüm dosyalar denetlenir |
 | Tip güvenliği | TypeScript 6 (strict mode) | `tsc -b` ile tip kontrolü |
 | Kod formatı | Prettier | Otomatik formatlama |
@@ -240,7 +240,7 @@ Proje tamamen açık kaynak araçlar ve ücretsiz harici servisler kullanılarak
 ### 6.2 Test Stratejisi
 
 | Seviye | Çerçeve | Kapsam |
-|---|---|---|
+| --- | --- | --- |
 | Birim testleri | — | Mevcut değil; servis fonksiyonları manuel test edildi |
 | Entegrasyon testleri | Vitest | `app.request()` ile uçtan uca HTTP testleri |
 | Test izolasyonu | Vitest + ayrı SQLite DB | `prisma/test.db` üzerinde her test öncesi tablolar temizlenir |
@@ -265,7 +265,7 @@ cd client && npm run lint && tsc -b
 ## 7. Teslimatlar
 
 | # | Teslimat | Format | Durum |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | D1 | Kaynak kod | Git repo (`domain_info`) | Tamamlandı |
 | D2 | Veritabanı şeması | Prisma migration dosyaları (3 migration) | Tamamlandı |
 | D3 | API dokümantasyonu | README.md (uç nokta tablosu + örnekler) | Tamamlandı |
@@ -283,7 +283,7 @@ cd client && npm run lint && tsc -b
 Proje tek geliştiriciyle, boş zamanlarda, toplam **10 takvim günü** içinde tamamlanmıştır. Net çalışma süresi yaklaşık **51,5 saat** olarak gerçekleşmiştir.
 
 | Faz | Planlanan (gün) | Gerçekleşen (gün) | Sapma |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Backend temel | 2 | 2 (29-30 Haz) | — |
 | Frontend temel | 2 | 2 (1-3 Tem) | +1 gün (hafta sonu) |
 | Auth + Test | 1 | 1 (7 Tem) | — |
