@@ -75,7 +75,7 @@ install -m 0644 "$(dirname "$0")/nginx.conf" "/etc/nginx/sites-available/${APP_N
 ln -sf "/etc/nginx/sites-available/${APP_NAME}" "/etc/nginx/sites-enabled/${APP_NAME}"
 rm -f /etc/nginx/sites-enabled/default
 nginx -t
-systemctl reload nginx
+systemctl restart nginx
 
 # ── firewall ─────────────────────────────────────────────────────────────────
 echo "==> Configuring UFW (only SSH + nginx HTTP)"
