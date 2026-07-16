@@ -27,7 +27,7 @@ apt-get upgrade -y
 # ── runtime deps ─────────────────────────────────────────────────────────────
 echo "==> Installing system packages"
 apt-get install -y --no-install-recommends \
-  curl ca-certificates gnupg ufw rsync nginx sqlite3
+  curl ca-certificates gnupg ufw rsync nginx sqlite3 traceroute
 
 # ── Node.js 20 LTS (NodeSource) ──────────────────────────────────────────────
 if ! command -v node >/dev/null 2>&1 || [[ "$(node -v | tr -d 'v' | cut -d. -f1)" -lt 20 ]]; then
