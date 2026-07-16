@@ -107,7 +107,16 @@ sudo chown -R ubuntu:ubuntu /opt/domain_info
 
 # install + build the server
 cd /opt/domain_info/server
+
+# `prisma.config.ts` requires DATABASE_URL to be defined. The real .env lives
+# in /var/lib/domain_info/ and is created later, so we set a placeholder here
+# (any value works for `generate`; migrate deploy also uses this path).
+export DATABASE_URL=file:/var/lib/domain_info/dev.db
+
 npm ci
+npx prisma generate
+sudo touch /var/lib/domain_info/dev.db
+sudo chown ubuntu:ubuntu /var/lib/domain_info/dev.db
 npx prisma migrate deploy
 npm run build
 
@@ -256,7 +265,9 @@ on the anniversary of this instance. Two paths:
 | Symptom | Fix |
 | --- | --- |
 | `502 Bad Gateway` from the tunnel | `sudo systemctl status domain_info` — check the backend log. Most often: bad `JWT_SECRET` in `.env` (must be ≥ 32 chars and not contain "change-me"). |
-| Traceroute times out | EC2 blocks outbound ICMP by default in newer AWS account defaults. **Outbound ICMP from EC2 to the internet is allowed by default** for new accounts; if your account predates 2023, check the security group's outbound rules. |
+| Traceroute times out | Two possible causes: (1) kernel `ping_group_range` excludes GID 1000 — `setup-server.sh` already fixes this. (2) EC2 outbound rules. Default outbound on new AWS accounts allows all; check the security group's outbound rules if your account is older. |
 | `cloudflared` prints a URL that 502s | The tunnel came up before nginx was ready. `sudo systemctl restart cloudflared-quick`. |
 | GitHub Action fails on `rsync` | Wrong `EC2_SSH_KEY` (newlines lost) or wrong `EC2_USER`. Re-paste the full `.pem` including the `-----BEGIN/END-----` lines. |
 | OOM kills in `journalctl` | argon2 under load on 1 GB RAM. The `ARGON2_OPTS` in `authService.ts` already use the minimum (19 MiB). If you still see OOMs, set `NODE_OPTIONS=--max-old-space-size=512` in the systemd unit. |
+| `PrismaConfigEnvError: Missing required environment variable: DATABASE_URL` | `export DATABASE_URL=file:/var/lib/domain_info/dev.db` in the shell before running `npx prisma generate` / `migrate deploy`. The GitHub Actions workflow sets this automatically. |
+| `apt` error on `https://pkg.cloudflare.com/cloudflared <codename> Release` 404 | Cloudflare's apt repo doesn't have non-LTS Ubuntu codenames yet. The fixed `setup-server.sh` installs cloudflared from the official .deb instead. If you already have a broken sources list: `sudo rm -f /etc/apt/sources.list.d/cloudflared.list /usr/share/keyrings/cloudflare-main.gpg` and re-run setup. |

@@ -39,15 +39,22 @@ echo "    node: $(node -v)  npm: $(npm -v)"
 
 # ── cloudflared ──────────────────────────────────────────────────────────────
 if ! command -v cloudflared >/dev/null 2>&1; then
-  echo "==> Installing cloudflared"
-  curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg \
-    | gpg --dearmor -o /usr/share/keyrings/cloudflare-main.gpg
-  echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" \
-    > /etc/apt/sources.list.d/cloudflared.list
-  apt-get update -y
-  apt-get install -y cloudflared
+  echo "==> Installing cloudflared (via official .deb, not apt — apt repo only has LTS codenames)"
+  curl -fsSL -o /tmp/cloudflared.deb \
+    https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+  dpkg -i /tmp/cloudflared.deb
+  rm -f /tmp/cloudflared.deb
 fi
 echo "    cloudflared: $(cloudflared --version 2>&1 | head -n1)"
+
+# ── raw ICMP for traceroute ──────────────────────────────────────────────────
+# Recent kernels (6.6+) ship with ping_group_range="1 0" which forbids raw
+# ICMP sockets for all GIDs. This breaks nodejs-traceroute on the app and
+# cloudflared's health-check ICMP proxy. Open it up to GID 0..1000 (covers
+# both root and the default ubuntu user).
+echo "==> Setting net.ipv4.ping_group_range=0 1000"
+echo 'net.ipv4.ping_group_range = 0 1000' > /etc/sysctl.d/99-ping-group-range.conf
+sysctl -w net.ipv4.ping_group_range="0 1000" >/dev/null
 
 # ── directories ──────────────────────────────────────────────────────────────
 echo "==> Creating app directories"

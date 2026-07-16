@@ -2,7 +2,7 @@ name: deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
 
 concurrency:
@@ -35,6 +35,8 @@ jobs:
 
       - name: Generate Prisma client
         working-directory: server
+        env:
+          DATABASE_URL: file:./prisma/dev.db
         run: npx prisma generate
 
       - name: Build server
