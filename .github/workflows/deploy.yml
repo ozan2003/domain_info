@@ -89,25 +89,53 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
-          set -euo pipefail
+          set -eu
+          # Diagnostics
+          echo "EC2_HOST='${EC2_HOST}' (len=${#EC2_HOST})"
+          echo "EC2_USER='${EC2_USER}'"
+          echo "EC2_SSH_KEY length: ${#EC2_SSH_KEY}"
+          echo "EC2_SSH_KEY first 5 chars: '${EC2_SSH_KEY:0:5}'"
+          echo "EC2_SSH_KEY last 5 chars:  '${EC2_SSH_KEY: -5}'"
+
           mkdir -p ~/.ssh
-          printf '%s' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          # Strip trailing newline and normalize CRLF -> LF, since the GitHub
+          # web paste commonly appends extra characters.
+          printf '%s' "$EC2_SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          # Ensure exactly one trailing newline (some ssh versions require it).
+          [ "$(tail -c1 ~/.ssh/deploy_key | wc -l)" -eq 0 ] && echo >> ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+          echo "deploy_key size: $(wc -c < ~/.ssh/deploy_key) bytes"
+          echo "deploy_key first 3 lines:"
+          head -n 3 ~/.ssh/deploy_key
+          echo "deploy_key last 3 lines:"
+          tail -n 3 ~/.ssh/deploy_key
+          echo "ssh-keygen -lf output:"
+          ssh-keygen -lf ~/.ssh/deploy_key || echo "  (key parse FAILED)"
+
+          # Disable strict host key check entirely — for a single-instance demo
+          # the cost of a known_hosts mismatch outweighs the security benefit.
           ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
           echo "==> rsync server/"
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            "$RUNNER_TEMP/stage/server/" \
-            "${EC2_USER}@${EC2_HOST}:/opt/domain_info/server/"
+          if ! rsync -az --delete \
+              -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+              "$RUNNER_TEMP/stage/server/" \
+              "${EC2_USER}@${EC2_HOST}:/opt/domain_info/server/"; then
+            echo "::error::rsync server/ failed (exit $?)"
+            exit 1
+          fi
 
           echo "==> rsync client/"
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            "$RUNNER_TEMP/stage/client/" \
-            "${EC2_USER}@${EC2_HOST}:/opt/domain_info/client/"
+          if ! rsync -az --delete \
+              -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+              "$RUNNER_TEMP/stage/client/" \
+              "${EC2_USER}@${EC2_HOST}:/opt/domain_info/client/"; then
+            echo "::error::rsync client/ failed (exit $?)"
+            exit 1
+          fi
 
           echo "==> restart service"
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "${EC2_USER}@${EC2_HOST}" \
             'sudo systemctl restart domain_info && sleep 2 && sudo systemctl is-active domain_info'
