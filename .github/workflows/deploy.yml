@@ -46,6 +46,16 @@ jobs:
         working-directory: server
         run: npm run build
 
+      - name: Ship Prisma query engine with dist
+        working-directory: server
+        # Prisma 6's prisma-client provider puts the query engine binary in
+        # src/generated/prisma/ alongside the TS files, but the compiled
+        # code expects it next to the .js files in dist/generated/prisma/.
+        # Copy the whole generated dir so the .so.node binary ships.
+        run: |
+          cp -r src/generated/prisma/. dist/generated/prisma/
+          ls -la dist/generated/prisma/ | grep -E "so.node|dll"
+
       - name: Build client
         working-directory: client
         run: npm run build
