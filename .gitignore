@@ -167,4 +167,6 @@ dist-ssr
 server/src/generated/prisma
 *db
 *sql
-*sqlite*.pem
+*sqlite
+
+*.pem
